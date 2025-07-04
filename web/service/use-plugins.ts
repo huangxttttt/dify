@@ -336,7 +336,7 @@ export const useMutationPermissions = ({
   })
 }
 
-export const useMutationPluginsFromMarketplace = () => {
+export const useMutationPluginsFromMarketplace2 = () => {
     return useMutation({
         mutationFn: async (pluginsSearchParams: PluginsSearchParams) => {
             const page = pluginsSearchParams.page || 1
@@ -625,7 +625,7 @@ export const useMutationPluginsFromMarketplace = () => {
     })
 }
 
-export const useMutationPluginsFromMarketplace2 = () => {
+export const useMutationPluginsFromMarketplace = () => {
   return useMutation({
     mutationFn: (pluginsSearchParams: PluginsSearchParams) => {
       const {
