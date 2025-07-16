@@ -3,6 +3,7 @@ from flask import Blueprint
 from libs.external_api import ExternalApi
 
 from .app.app_import import AppImportApi, AppImportCheckDependenciesApi, AppImportConfirmApi
+from .auth.token_exchange import TokenExchangeApi
 from .explore.audio import ChatAudioApi, ChatTextApi
 from .explore.completion import ChatApi, ChatStopApi, CompletionApi, CompletionStopApi
 from .explore.conversation import (
@@ -28,6 +29,7 @@ from .remote_files import RemoteFileInfoApi, RemoteFileUploadApi
 bp = Blueprint("console", __name__, url_prefix="/console/api")
 api = ExternalApi(bp)
 
+api.add_resource(TokenExchangeApi, "/exchange-token")
 # File
 api.add_resource(FileApi, "/files/upload")
 api.add_resource(FilePreviewApi, "/files/<uuid:file_id>/preview")

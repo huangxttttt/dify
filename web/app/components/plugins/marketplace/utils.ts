@@ -39,31 +39,31 @@ export const getPluginLinkInMarketplace = (plugin: Plugin) => {
 }
 
 export const getMarketplacePluginsByCollectionId = async (collectionId: string, query?: CollectionsAndPluginsSearchParams) => {
-  const plugins = [] as Plugin[]
+  let plugins = [] as Plugin[]
 
-  // try {
-  //   const url = `${MARKETPLACE_API_PREFIX}/collections/${collectionId}/plugins`
-  //   const marketplaceCollectionPluginsData = await globalThis.fetch(
-  //     url,
-  //     {
-  //       cache: 'no-store',
-  //       method: 'POST',
-  //       body: JSON.stringify({
-  //         category: query?.category,
-  //         exclude: query?.exclude,
-  //         type: query?.type,
-  //       }),
-  //     },
-  //   )
-  //   const marketplaceCollectionPluginsDataJson = await marketplaceCollectionPluginsData.json()
-  //   plugins = marketplaceCollectionPluginsDataJson.data.plugins.map((plugin: Plugin) => {
-  //     return getFormattedPlugin(plugin)
-  //   })
-  // }
-  // // eslint-disable-next-line unused-imports/no-unused-vars
-  // catch (e) {
-  //   plugins = []
-  // }
+  try {
+    const url = `${MARKETPLACE_API_PREFIX}/collections/${collectionId}/plugins`
+    const marketplaceCollectionPluginsData = await globalThis.fetch(
+      url,
+      {
+        cache: 'no-store',
+        method: 'POST',
+        body: JSON.stringify({
+          category: query?.category,
+          exclude: query?.exclude,
+          type: query?.type,
+        }),
+      },
+    )
+    const marketplaceCollectionPluginsDataJson = await marketplaceCollectionPluginsData.json()
+    plugins = marketplaceCollectionPluginsDataJson.data.plugins.map((plugin: Plugin) => {
+      return getFormattedPlugin(plugin)
+    })
+  }
+  // eslint-disable-next-line unused-imports/no-unused-vars
+  catch (e) {
+    plugins = []
+  }
 
   return plugins
 }

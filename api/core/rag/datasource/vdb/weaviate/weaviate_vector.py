@@ -204,8 +204,32 @@ class WeaviateVector(BaseVector):
             raise ValueError(f"Error during query: {result['errors']}")
 
         docs_and_scores = []
+        """
+                {
+          "data": {
+            "Get": {
+              "classname": [
+                {
+                  "content": "AI 将彻底改变我们的工作方式",
+                  "topic": "人工智能",
+                  "time": "2023-06-01T09:00:00Z",
+                  "_additional": {
+                    "id": "5c31b5c1-2f48-4c91-9b98-dc732fd57e6e",
+                    "distance": 0.12,
+                    "vector": [0.1, 0.2, 0.3, 0.4, ...]
+                  }
+                },
+               ....
+              ]
+            }
+          }
+        }
+        """
         for res in result["data"]["Get"][collection_name]:
             text = res.pop(Field.TEXT_KEY.value)
+            # Weaviate 返回的是 距离（distance），而不是相似度。
+            # 距离 = 1 - 相似度（当使用余弦时）。
+            # 所以，Weaviate 的 distance 越小，表示越相似。
             score = 1 - res["_additional"]["distance"]
             docs_and_scores.append((Document(page_content=text, metadata=res), score))
 
