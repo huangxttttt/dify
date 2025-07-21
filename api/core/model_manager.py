@@ -101,7 +101,7 @@ class ModelInstance:
     @overload
     def invoke_llm(
         self,
-        prompt_messages: list[PromptMessage],
+        prompt_messages: Sequence[PromptMessage],
         model_parameters: Optional[dict] = None,
         tools: Sequence[PromptMessageTool] | None = None,
         stop: Optional[list[str]] = None,
@@ -541,8 +541,6 @@ class LBModelManager:
                 )
 
             return config
-
-        return None
 
     def cooldown(self, config: ModelLoadBalancingConfiguration, expire: int = 60) -> None:
         """

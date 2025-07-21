@@ -48,7 +48,6 @@ const Installed: FC<Props> = ({
   useEffect(() => {
     if (hasInstalled && uniqueIdentifier === installedInfoPayload.uniqueIdentifier)
       onInstalled()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasInstalled])
 
   const [isInstalling, setIsInstalling] = React.useState(false)
@@ -124,7 +123,7 @@ const Installed: FC<Props> = ({
             />
           </p>
           {!isDifyVersionCompatible && (
-            <p className='system-md-regular flex items-center gap-1 text-text-secondary text-text-warning'>
+            <p className='system-md-regular flex items-center gap-1 text-text-warning'>
               {t('plugin.difyVersionNotCompatible', { minimalDifyVersion: payload.meta.minimum_dify_version })}
             </p>
           )}

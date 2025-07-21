@@ -15,7 +15,7 @@ import type {
   Feedback,
 } from '../types'
 import { CONVERSATION_ID_INFO } from '../constants'
-import { buildChatItemTree, getProcessedInputsFromUrlParams, getProcessedSystemVariablesFromUrlParams } from '../utils'
+import { buildChatItemTree, getProcessedInputsFromUrlParams, getProcessedSystemVariablesFromUrlParams, getProcessedUserVariablesFromUrlParams } from '../utils'
 import { getProcessedFilesFromResponse } from '../../file-uploader/utils'
 import {
   fetchAppInfo,
@@ -36,6 +36,8 @@ import { InputVarType } from '@/app/components/workflow/types'
 import { TransferMethod } from '@/types/app'
 import { addFileInfos, sortAgentSorts } from '@/app/components/tools/utils'
 import { noop } from 'lodash-es'
+import { useGetUserCanAccessApp } from '@/service/access-control'
+import { useGlobalPublicStore } from '@/context/global-public-context'
 
 function getFormattedChatList(messages: any[]) {
   const newChatList: ChatItem[] = []
@@ -65,7 +67,13 @@ function getFormattedChatList(messages: any[]) {
 
 export const useEmbeddedChatbot = () => {
   const isInstalledApp = false
+  const systemFeatures = useGlobalPublicStore(s => s.systemFeatures)
   const { data: appInfo, isLoading: appInfoLoading, error: appInfoError } = useSWR('appInfo', fetchAppInfo)
+  const { isPending: isCheckingPermission, data: userCanAccessResult } = useGetUserCanAccessApp({
+    appId: appInfo?.app_id,
+    isInstalledApp,
+    enabled: systemFeatures.webapp_auth.enabled,
+  })
 
   const appData = useMemo(() => {
     return appInfo
@@ -73,21 +81,47 @@ export const useEmbeddedChatbot = () => {
   const appId = useMemo(() => appData?.app_id, [appData])
 
   const [userId, setUserId] = useState<string>()
+  const [conversationId, setConversationId] = useState<string>()
   useEffect(() => {
-    getProcessedSystemVariablesFromUrlParams().then(({ user_id }) => {
+    getProcessedSystemVariablesFromUrlParams().then(({ user_id, conversation_id }) => {
       setUserId(user_id)
+      setConversationId(conversation_id)
     })
   }, [])
 
   useEffect(() => {
-    if (appInfo?.site.default_language)
-      changeLanguage(appInfo.site.default_language)
+    const setLanguageFromParams = async () => {
+      // Check URL parameters for language override
+      const urlParams = new URLSearchParams(window.location.search)
+      const localeParam = urlParams.get('locale')
+
+      // Check for encoded system variables
+      const systemVariables = await getProcessedSystemVariablesFromUrlParams()
+      const localeFromSysVar = systemVariables.locale
+
+      if (localeParam) {
+        // If locale parameter exists in URL, use it instead of default
+        changeLanguage(localeParam)
+      }
+      else if (localeFromSysVar) {
+        // If locale is set as a system variable, use that
+        changeLanguage(localeFromSysVar)
+      }
+      else if (appInfo?.site.default_language) {
+        // Otherwise use the default from app config
+        changeLanguage(appInfo.site.default_language)
+      }
+    }
+
+    setLanguageFromParams()
   }, [appInfo])
 
   const [conversationIdInfo, setConversationIdInfo] = useLocalStorageState<Record<string, Record<string, string>>>(CONVERSATION_ID_INFO, {
     defaultValue: {},
   })
-  const currentConversationId = useMemo(() => conversationIdInfo?.[appId || '']?.[userId || 'DEFAULT'] || '', [appId, conversationIdInfo, userId])
+  const allowResetChat = !conversationId
+  const currentConversationId = useMemo(() => conversationIdInfo?.[appId || '']?.[userId || 'DEFAULT'] || conversationId || '',
+    [appId, conversationIdInfo, userId, conversationId])
   const handleConversationIdInfoChange = useCallback((changeConversationId: string) => {
     if (appId) {
       let prevValue = conversationIdInfo?.[appId || '']
@@ -135,6 +169,7 @@ export const useEmbeddedChatbot = () => {
   const newConversationInputsRef = useRef<Record<string, any>>({})
   const [newConversationInputs, setNewConversationInputs] = useState<Record<string, any>>({})
   const [initInputs, setInitInputs] = useState<Record<string, any>>({})
+  const [initUserVariables, setInitUserVariables] = useState<Record<string, any>>({})
   const handleNewConversationInputsChange = useCallback((newInputs: Record<string, any>) => {
     newConversationInputsRef.current = newInputs
     setNewConversationInputs(newInputs)
@@ -195,11 +230,17 @@ export const useEmbeddedChatbot = () => {
     })
   }, [initInputs, appParams])
 
+  const allInputsHidden = useMemo(() => {
+    return inputsForms.length > 0 && inputsForms.every(item => item.hide === true)
+  }, [inputsForms])
+
   useEffect(() => {
     // init inputs from url params
     (async () => {
       const inputs = await getProcessedInputsFromUrlParams()
+      const userVariables = await getProcessedUserVariablesFromUrlParams()
       setInitInputs(inputs)
+      setInitUserVariables(userVariables)
     })()
   }, [])
   useEffect(() => {
@@ -266,6 +307,9 @@ export const useEmbeddedChatbot = () => {
 
   const { notify } = useToastContext()
   const checkInputsRequired = useCallback((silent?: boolean) => {
+    if (allInputsHidden)
+      return true
+
     let hasEmptyInput = ''
     let fileIsUploading = false
     const requiredVars = inputsForms.filter(({ required }) => required)
@@ -301,7 +345,7 @@ export const useEmbeddedChatbot = () => {
     }
 
     return true
-  }, [inputsForms, notify, t])
+  }, [inputsForms, notify, t, allInputsHidden])
   const handleStartChat = useCallback((callback?: any) => {
     if (checkInputsRequired()) {
       setShowNewConversationItemInList(true)
@@ -338,8 +382,10 @@ export const useEmbeddedChatbot = () => {
 
   return {
     appInfoError,
-    appInfoLoading,
+    appInfoLoading: appInfoLoading || (systemFeatures.webapp_auth.enabled && isCheckingPermission),
+    userCanAccess: systemFeatures.webapp_auth.enabled ? userCanAccessResult?.result : true,
     isInstalledApp,
+    allowResetChat,
     appId,
     currentConversationId,
     currentConversationItem,
@@ -374,5 +420,7 @@ export const useEmbeddedChatbot = () => {
     setIsResponding,
     currentConversationInputs,
     setCurrentConversationInputs,
+    allInputsHidden,
+    initUserVariables,
   }
 }

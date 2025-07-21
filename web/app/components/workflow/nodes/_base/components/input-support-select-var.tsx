@@ -53,7 +53,6 @@ const Editor: FC<Props> = ({
 
   useEffect(() => {
     onFocusChange?.(isFocus)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFocus])
 
   return (
@@ -91,6 +90,9 @@ const Editor: FC<Props> = ({
               acc[node.id] = {
                 title: node.data.title,
                 type: node.data.type,
+                width: node.width,
+                height: node.height,
+                position: node.position,
               }
               if (node.data.type === BlockEnum.Start) {
                 acc.sys = {

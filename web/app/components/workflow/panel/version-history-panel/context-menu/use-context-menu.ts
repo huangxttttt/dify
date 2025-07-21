@@ -30,7 +30,6 @@ const useContextMenu = (props: ContextMenuProps) => {
           name: t('workflow.versionHistory.nameThisVersion'),
         },
     ]
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isNamedVersion])
 
   return {

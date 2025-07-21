@@ -36,6 +36,7 @@ export type PluginEndpointDeclaration = {
 export type EndpointItem = {
   path: string
   method: string
+  hidden?: boolean
 }
 
 export type EndpointListItem = {
@@ -93,7 +94,11 @@ export type PluginManifestInMarket = {
   introduction: string
   verified: boolean
   install_count: number
-  badges: string[]
+  badges: string[],
+  verification: {
+    authorized_category: 'langgenius' | 'partner' | 'community'
+  },
+  from: Dependency['type']
 }
 
 export type PluginDetail = {
@@ -144,7 +149,11 @@ export type Plugin = {
     settings: CredentialFormSchemaBase[]
   }
   tags: { name: string }[]
-  badges: string[]
+  badges: string[],
+  verification: {
+    authorized_category: 'langgenius' | 'partner' | 'community'
+  },
+  from: Dependency['type']
 }
 
 export enum PermissionType {
@@ -324,6 +333,11 @@ export type InstalledPluginListResponse = {
   plugins: PluginDetail[]
 }
 
+export type InstalledPluginListWithTotalResponse = {
+  plugins: PluginDetail[]
+  total: number
+}
+
 export type InstalledLatestVersionResponse = {
   versions: {
     [plugin_id: string]: {
@@ -448,9 +462,14 @@ export type StrategyDeclaration = {
   strategies: StrategyDetail[]
 }
 
+export type PluginMeta = {
+  version: string // the version of dify sdk
+}
+
 export type StrategyPluginDetail = {
   provider: string
   plugin_unique_identifier: string
   plugin_id: string
   declaration: StrategyDeclaration
+  meta: PluginMeta
 }

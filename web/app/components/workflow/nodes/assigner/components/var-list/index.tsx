@@ -52,6 +52,7 @@ const VarList: FC<Props> = ({
       const newList = produce(list, (draft) => {
         draft[index].variable_selector = value as ValueSelector
         draft[index].operation = WriteMode.overwrite
+        draft[index].input_type = AssignerNodeInputType.variable
         draft[index].value = undefined
       })
       onChange(newList, value as ValueSelector)
@@ -152,6 +153,7 @@ const VarList: FC<Props> = ({
                 />
               </div>
               {item.operation !== WriteMode.clear && item.operation !== WriteMode.set
+                && item.operation !== WriteMode.removeFirst && item.operation !== WriteMode.removeLast
                 && !writeModeTypesNum?.includes(item.operation)
                 && (
                   <VarReferencePicker
