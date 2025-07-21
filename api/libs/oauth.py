@@ -1,7 +1,8 @@
+import base64
 import urllib.parse
 from dataclasses import dataclass
 from typing import Optional
-import base64
+
 import requests
 
 
@@ -56,7 +57,7 @@ class GalaxyOAuth(OAuth):
             "redirect_uri": self.redirect_uri,
             "grant_type": 'authorization_code',
         }
-        auth_string = f"{self.client_id}:{self.client_secret}".encode("utf-8")
+        auth_string = f"{self.client_id}:{self.client_secret}".encode()
         auth_b64 = base64.b64encode(auth_string).decode("utf-8")
         headers = {
             "Accept": "application/json",

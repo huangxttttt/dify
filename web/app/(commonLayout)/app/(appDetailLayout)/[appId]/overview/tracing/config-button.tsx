@@ -41,7 +41,6 @@ const ConfigBtn: FC<Props> = ({
     if (controlShowPopup)
       // setOpen(!openRef.current)
       setOpen(true)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [controlShowPopup])
 
   if (popupProps.readOnly && !hasConfigured)
