@@ -46,6 +46,7 @@ type ItemProps = {
   isSupportFileVar?: boolean
   isException?: boolean
   isLoopVar?: boolean
+  zIndex?: number
 }
 
 const objVarTypes = [VarType.object, VarType.file]
@@ -60,6 +61,7 @@ const Item: FC<ItemProps> = ({
   isSupportFileVar,
   isException,
   isLoopVar,
+  zIndex,
 }) => {
   const isStructureOutput = itemData.type === VarType.object && (itemData.children as StructuredOutput)?.schema?.properties
   const isFile = itemData.type === VarType.file && !isStructureOutput
@@ -116,7 +118,6 @@ const Item: FC<ItemProps> = ({
   const open = (isObj || isStructureOutput) && isHovering
   useEffect(() => {
     onHovering && onHovering(isHovering)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHovering])
   const handleChosen = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -141,7 +142,7 @@ const Item: FC<ItemProps> = ({
           ref={itemRef}
           className={cn(
             (isObj || isStructureOutput) ? ' pr-1' : 'pr-[18px]',
-            isHovering && ((isObj || isStructureOutput) ? 'bg-primary-50' : 'bg-state-base-hover'),
+            isHovering && ((isObj || isStructureOutput) ? 'bg-components-panel-on-panel-item-bg-hover' : 'bg-state-base-hover'),
             'relative flex h-6 w-full cursor-pointer items-center  rounded-md pl-3')
           }
           onClick={handleChosen}
@@ -171,7 +172,7 @@ const Item: FC<ItemProps> = ({
         </div >
       </PortalToFollowElemTrigger >
       <PortalToFollowElemContent style={{
-        zIndex: 100,
+        zIndex: zIndex || 100,
       }}>
         {(isStructureOutput || isObj) && (
           <PickerStructurePanel
@@ -217,11 +218,9 @@ const ObjectChildren: FC<ObjectChildrenProps> = ({
   const isHovering = isItemHovering || isChildrenHovering
   useEffect(() => {
     onHovering && onHovering(isHovering)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isHovering])
   useEffect(() => {
     onHovering && onHovering(isItemHovering)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isItemHovering])
   // absolute top-[-2px]
   return (
@@ -258,6 +257,10 @@ type Props = {
   onChange: (value: ValueSelector, item: Var) => void
   itemWidth?: number
   maxHeightClass?: string
+  onClose?: () => void
+  onBlur?: () => void
+  zIndex?: number
+  autoFocus?: boolean
 }
 const VarReferenceVars: FC<Props> = ({
   hideSearch,
@@ -267,9 +270,20 @@ const VarReferenceVars: FC<Props> = ({
   onChange,
   itemWidth,
   maxHeightClass,
+  onClose,
+  onBlur,
+  zIndex,
+  autoFocus = true,
 }) => {
   const { t } = useTranslation()
   const [searchText, setSearchText] = useState('')
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      onClose?.()
+    }
+  }
 
   const filteredVars = vars.filter((v) => {
     const children = v.vars.filter(v => checkKeys([v.variable], false).isValid || v.variable.startsWith('sys.') || v.variable.startsWith('env.') || v.variable.startsWith('conversation.'))
@@ -301,15 +315,18 @@ const VarReferenceVars: FC<Props> = ({
       {
         !hideSearch && (
           <>
-            <div className={cn('mx-2 mb-1 mt-2', searchBoxClassName)} onClick={e => e.stopPropagation()}>
+            <div className={cn('var-search-input-wrapper mx-2 mb-1 mt-2', searchBoxClassName)} onClick={e => e.stopPropagation()}>
               <Input
+                className='var-search-input'
                 showLeftIcon
                 showClearIcon
                 value={searchText}
                 placeholder={t('workflow.common.searchVar') || ''}
                 onChange={e => setSearchText(e.target.value)}
+                onKeyDown={handleKeyDown}
                 onClear={() => setSearchText('')}
-                autoFocus
+                onBlur={onBlur}
+                autoFocus={autoFocus}
               />
             </div>
             <div className='relative left-[-4px] h-[0.5px] bg-black/5' style={{
@@ -341,6 +358,7 @@ const VarReferenceVars: FC<Props> = ({
                     isSupportFileVar={isSupportFileVar}
                     isException={v.isException}
                     isLoopVar={item.isLoop}
+                    zIndex={zIndex}
                   />
                 ))}
               </div>))

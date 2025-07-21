@@ -1,11 +1,11 @@
-import datetime
 import urllib.parse
 from typing import Any
 
 import requests
-from flask_login import current_user  # type: ignore
+from flask_login import current_user
 
 from extensions.ext_database import db
+from libs.datetime_utils import naive_utc_now
 from models.source import DataSourceOauthBinding
 
 
@@ -61,17 +61,21 @@ class NotionOAuth(OAuthDataSource):
             "total": len(pages),
         }
         # save data source binding
-        data_source_binding = DataSourceOauthBinding.query.filter(
-            db.and_(
-                DataSourceOauthBinding.tenant_id == current_user.current_tenant_id,
-                DataSourceOauthBinding.provider == "notion",
-                DataSourceOauthBinding.access_token == access_token,
+        data_source_binding = (
+            db.session.query(DataSourceOauthBinding)
+            .filter(
+                db.and_(
+                    DataSourceOauthBinding.tenant_id == current_user.current_tenant_id,
+                    DataSourceOauthBinding.provider == "notion",
+                    DataSourceOauthBinding.access_token == access_token,
+                )
             )
-        ).first()
+            .first()
+        )
         if data_source_binding:
             data_source_binding.source_info = source_info
             data_source_binding.disabled = False
-            data_source_binding.updated_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+            data_source_binding.updated_at = naive_utc_now()
             db.session.commit()
         else:
             new_data_source_binding = DataSourceOauthBinding(
@@ -97,17 +101,21 @@ class NotionOAuth(OAuthDataSource):
             "total": len(pages),
         }
         # save data source binding
-        data_source_binding = DataSourceOauthBinding.query.filter(
-            db.and_(
-                DataSourceOauthBinding.tenant_id == current_user.current_tenant_id,
-                DataSourceOauthBinding.provider == "notion",
-                DataSourceOauthBinding.access_token == access_token,
+        data_source_binding = (
+            db.session.query(DataSourceOauthBinding)
+            .filter(
+                db.and_(
+                    DataSourceOauthBinding.tenant_id == current_user.current_tenant_id,
+                    DataSourceOauthBinding.provider == "notion",
+                    DataSourceOauthBinding.access_token == access_token,
+                )
             )
-        ).first()
+            .first()
+        )
         if data_source_binding:
             data_source_binding.source_info = source_info
             data_source_binding.disabled = False
-            data_source_binding.updated_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+            data_source_binding.updated_at = naive_utc_now()
             db.session.commit()
         else:
             new_data_source_binding = DataSourceOauthBinding(
@@ -121,14 +129,18 @@ class NotionOAuth(OAuthDataSource):
 
     def sync_data_source(self, binding_id: str):
         # save data source binding
-        data_source_binding = DataSourceOauthBinding.query.filter(
-            db.and_(
-                DataSourceOauthBinding.tenant_id == current_user.current_tenant_id,
-                DataSourceOauthBinding.provider == "notion",
-                DataSourceOauthBinding.id == binding_id,
-                DataSourceOauthBinding.disabled == False,
+        data_source_binding = (
+            db.session.query(DataSourceOauthBinding)
+            .filter(
+                db.and_(
+                    DataSourceOauthBinding.tenant_id == current_user.current_tenant_id,
+                    DataSourceOauthBinding.provider == "notion",
+                    DataSourceOauthBinding.id == binding_id,
+                    DataSourceOauthBinding.disabled == False,
+                )
             )
-        ).first()
+            .first()
+        )
         if data_source_binding:
             # get all authorized pages
             pages = self.get_authorized_pages(data_source_binding.access_token)
@@ -142,7 +154,7 @@ class NotionOAuth(OAuthDataSource):
             }
             data_source_binding.source_info = new_source_info
             data_source_binding.disabled = False
-            data_source_binding.updated_at = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
+            data_source_binding.updated_at = naive_utc_now()
             db.session.commit()
         else:
             raise ValueError("Data source binding not found")

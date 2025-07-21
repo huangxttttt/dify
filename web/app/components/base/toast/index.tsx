@@ -46,7 +46,7 @@ const Toast = ({
 
   return <div className={classNames(
     className,
-    'fixed w-[360px] rounded-xl my-4 mx-8 flex-grow z-[9999] overflow-hidden',
+    'fixed z-[9999] mx-8 my-4 w-[360px] grow overflow-hidden rounded-xl',
     size === 'md' ? 'p-3' : 'p-2',
     'border border-components-panel-border-subtle bg-components-panel-bg-blur shadow-sm',
     'top-0',
@@ -68,7 +68,7 @@ const Toast = ({
       </div>
       <div className={`flex py-1 ${size === 'md' ? 'px-1' : 'px-0.5'} grow flex-col items-start gap-1`}>
         <div className='flex items-center gap-1'>
-          <div className='system-sm-semibold text-text-primary'>{message}</div>
+          <div className='system-sm-semibold text-text-primary [word-break:break-word]'>{message}</div>
           {customComponent}
         </div>
         {children && <div className='system-xs-regular text-text-secondary'>

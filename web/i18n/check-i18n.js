@@ -1,4 +1,3 @@
-/* eslint-disable no-eval */
 const fs = require('node:fs')
 const path = require('node:path')
 const transpile = require('typescript').transpile
@@ -27,9 +26,14 @@ async function getKeysFromLanuage(language) {
         // console.log(camelCaseFileName)
         const content = fs.readFileSync(filePath, 'utf8')
         // eslint-disable-next-line sonarjs/code-eval
-        const translation = eval(transpile(content))
+        const translationObj = eval(transpile(content))
         // console.log(translation)
-        const keys = Object.keys(translation)
+        if(!translationObj || typeof translationObj !== 'object') {
+          console.error(`Error parsing file: ${filePath}`)
+          reject(new Error(`Error parsing file: ${filePath}`))
+          return
+        }
+        const keys = Object.keys(translationObj)
         const nestedKeys = []
         const iterateKeys = (obj, prefix = '') => {
           for (const key in obj) {
@@ -39,7 +43,7 @@ async function getKeysFromLanuage(language) {
               iterateKeys(obj[key], nestedKey)
           }
         }
-        iterateKeys(translation)
+        iterateKeys(translationObj)
 
         allKeys = [...keys, ...nestedKeys].map(
           key => `${camelCaseFileName}.${key}`,
