@@ -54,7 +54,6 @@ def get_oauth_providers():
 
         )
 
-
         OAUTH_PROVIDERS = {
             "github": github_oauth,
             "google": google_oauth,
@@ -62,53 +61,16 @@ def get_oauth_providers():
         }
         return OAUTH_PROVIDERS
 
+
 class GalaxyOauthLogin(Resource):
     def get(self, provider: str):
         token = request.args.get("token") or None
         if not token:
             return {"error": "Invalid provider"}, 400
         OAUTH_PROVIDERS = get_oauth_providers()
-        with current_app.app_context():
-            oauth_provider = OAUTH_PROVIDERS.get(provider)
-        if not oauth_provider:
-            return {"error": "Invalid provider"}, 400
-        try:
-            user_info = oauth_provider.get_user_info(token)
-        except requests.exceptions.RequestException as e:
-            error_text = e.response.text if e.response else str(e)
-            logging.exception(f"An error occurred during the OAuth process with {provider}: {error_text}")
-            return {"error": "OAuth process failed"}, 400
-        try:
-            account = _generate_account(provider, user_info)
-        except AccountNotFoundError:
-            return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Account not found.")
-        except (WorkSpaceNotFoundError, WorkSpaceNotAllowedCreateError):
-            return redirect(
-                f"{dify_config.CONSOLE_WEB_URL}/signin"
-                "?message=Workspace not found, please contact system admin to invite you to join in a workspace."
-            )
-        except AccountRegisterError as e:
-            return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message={e.description}")
-
-            # Check account status
-        if account.status == AccountStatus.BANNED.value:
-            return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Account is banned.")
-
-        if account.status == AccountStatus.PENDING.value:
-            account.status = AccountStatus.ACTIVE.value
-            account.initialized_at = datetime.now(UTC).replace(tzinfo=None)
-            db.session.commit()
-
-        try:
-            TenantService.create_owner_tenant_if_not_exist(account)
-        except Unauthorized:
-            return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Workspace not found.")
-        except WorkSpaceNotAllowedCreateError:
-            return redirect(
-                f"{dify_config.CONSOLE_WEB_URL}/signin"
-                "?message=Workspace not found, please contact system admin to invite you to join in a workspace."
-            )
-
+        # 获取用户信息
+        account = add_galaxy_user_info(provider, token, OAUTH_PROVIDERS)
+        # 生成token
         token_pair = AccountService.login(
             account=account,
             ip_address=extract_remote_ip(request),
@@ -118,6 +80,56 @@ class GalaxyOauthLogin(Resource):
             f"{dify_config.CONSOLE_WEB_URL}?access_token={token_pair.access_token}&refresh_token={token_pair.refresh_token}"
         )
 
+"""
+使用galaxy的认证方式去生成dify用户信息
+"""
+def add_galaxy_user_info(self, provider: str, token: str, auth_providers: dict):
+    with current_app.app_context():
+        oauth_provider = auth_providers.get(provider)
+    if not oauth_provider:
+        return {"error": "Invalid provider"}, 400
+    try:
+        user_info = oauth_provider.get_user_info(token)
+    except requests.exceptions.RequestException as e:
+        error_text = e.response.text if e.response else str(e)
+        logging.exception(f"An error occurred during the OAuth process with {provider}: {error_text}")
+        return {"error": "OAuth process failed"}, 400
+    # 新增用户
+    return add_account(provider, user_info)
+
+
+def add_account(provider: str, user_info: OAuthUserInfo):
+    try:
+        account = _generate_account(provider, user_info)
+    except AccountNotFoundError:
+        return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Account not found.")
+    except (WorkSpaceNotFoundError, WorkSpaceNotAllowedCreateError):
+        return redirect(
+            f"{dify_config.CONSOLE_WEB_URL}/signin"
+            "?message=Workspace not found, please contact system admin to invite you to join in a workspace."
+        )
+    except AccountRegisterError as e:
+        return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message={e.description}")
+
+        # Check account status
+    if account.status == AccountStatus.BANNED.value:
+        return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Account is banned.")
+
+    if account.status == AccountStatus.PENDING.value:
+        account.status = AccountStatus.ACTIVE.value
+        account.initialized_at = naive_utc_now()
+        db.session.commit()
+
+    try:
+        TenantService.create_owner_tenant_if_not_exist(account)
+    except Unauthorized:
+        return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Workspace not found.")
+    except WorkSpaceNotAllowedCreateError:
+        return redirect(
+            f"{dify_config.CONSOLE_WEB_URL}/signin"
+            "?message=Workspace not found, please contact system admin to invite you to join in a workspace."
+        )
+    return account
 
 class OAuthLogin(Resource):
     def get(self, provider: str):
@@ -202,7 +214,6 @@ class OAuthCallback(Resource):
         return redirect(
             f"{dify_config.CONSOLE_WEB_URL}?access_token={token_pair.access_token}&refresh_token={token_pair.refresh_token}"
         )
-
 
 
 def _get_account_by_openid_or_email(provider: str, user_info: OAuthUserInfo) -> Optional[Account]:

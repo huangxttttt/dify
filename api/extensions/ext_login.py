@@ -1,10 +1,10 @@
 import json
-
+# import logging
 import flask_login  # type: ignore
-from flask import Response, request
+from flask import  Response, request
 from flask_login import user_loaded_from_request, user_logged_in
 from werkzeug.exceptions import NotFound, Unauthorized
-
+# import requests
 from configs import dify_config
 from dify_app import DifyApp
 from extensions.ext_database import db
@@ -12,6 +12,10 @@ from libs.passport import PassportService
 from models.account import Account, Tenant, TenantAccountJoin
 from models.model import AppMCPServer, EndUser
 from services.account_service import AccountService
+import jwt
+
+from controllers.console.auth.oauth import add_account
+from libs.oauth import OAuthUserInfo
 
 login_manager = flask_login.LoginManager()
 
@@ -22,6 +26,7 @@ def load_user_from_request(request_from_flask_login):
     """Load user based on the request."""
     auth_header = request.headers.get("Authorization", "")
     auth_token: str | None = None
+    galaxy_auth_token: str | None = None
     if auth_header:
         if " " not in auth_header:
             raise Unauthorized("Invalid Authorization header format. Expected 'Bearer <api-key>' format.")
@@ -31,6 +36,37 @@ def load_user_from_request(request_from_flask_login):
             raise Unauthorized("Invalid Authorization header format. Expected 'Bearer <api-key>' format.")
     else:
         auth_token = request.args.get("_token")
+    galaxy_auth_token = request.args.get("galaxy_token")
+
+    galaxy_account: str | None = None
+    if galaxy_auth_token:
+        provider = "galaxy"
+
+        # 解密 token 并验证签名
+        try:
+            payload = jwt.decode(galaxy_auth_token, "123456", algorithms=["HS256"])
+        except jwt.exceptions.ExpiredSignatureError:
+            raise Unauthorized("Token has expired.")
+        except jwt.exceptions.InvalidSignatureError:
+            raise Unauthorized("Invalid token signature.")
+        except jwt.exceptions.DecodeError:
+            raise Unauthorized("Invalid token.")
+        except jwt.exceptions.PyJWTError:  # Catch-all for other JWT errors
+            raise Unauthorized("Invalid token.")
+        # 从 payload 获取用户名
+        user_name = payload.get("user_name")
+        user_id = payload.get("user_id")
+        user_email = f"{user_name}@galaxy.com"
+        auth_user_info = OAuthUserInfo(id=str(user_id + 1), name=user_name, email=user_email)
+        galaxy_account = add_account(provider, auth_user_info)
+
+        # todo 暂时隐蔽使用解析token的方法，等待环境完成，则可以使用调用oauth2的接口获取用户信息
+        # OAUTH_PROVIDERS = get_oauth_providers()
+        # with current_app.app_context():
+        #     oauth_provider = OAUTH_PROVIDERS.get(provider)
+        # if not oauth_provider:
+        #     return {"error": "Invalid provider"}, 400
+        # galaxy_account = add_galaxy_user_info(provider, galaxy_auth_token, OAUTH_PROVIDERS)
 
     # Check for admin API key authentication first
     if dify_config.ADMIN_API_KEY_ENABLE and auth_header:
@@ -53,6 +89,11 @@ def load_user_from_request(request_from_flask_login):
                         return account
 
     if request.blueprint in {"console", "inner_api"}:
+        # 如果有galaxy token则直接认证通过
+        if galaxy_auth_token:
+            logged_in_account = AccountService.get_user_through_email(galaxy_account.email)
+            return logged_in_account
+
         if not auth_token:
             raise Unauthorized("Invalid Authorization token.")
         decoded = PassportService().verify(auth_token)
