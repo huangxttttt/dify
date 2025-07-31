@@ -9,8 +9,8 @@ server {
       include proxy.conf;
     }
 
-    location /api {
-      proxy_pass http://api:5001;
+    location /dify/api/ {
+      proxy_pass http://api:5001/api/;
       include proxy.conf;
     }
 
