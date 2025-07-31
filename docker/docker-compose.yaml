@@ -559,6 +559,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    ports:
+      - "5001:5001"  # 暴露API服务端口
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
@@ -596,8 +598,8 @@ services:
 
   # Frontend web application.
   web:
-#    image: langgenius/dify-web:1.6.0
-    image: bill73777/dify-web:1.6.0
+    image: langgenius/dify-web:1.6.0
+#    image: bill73777/dify-web:1.6.0
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
@@ -620,6 +622,8 @@ services:
       ENABLE_WEBSITE_JINAREADER: ${ENABLE_WEBSITE_JINAREADER:-true}
       ENABLE_WEBSITE_FIRECRAWL: ${ENABLE_WEBSITE_FIRECRAWL:-true}
       ENABLE_WEBSITE_WATERCRAWL: ${ENABLE_WEBSITE_WATERCRAWL:-true}
+    ports:
+      - "3000:3000"  # 暴露Web服务端口
   # The postgres database.
   db:
     image: postgres:15-alpine
@@ -734,6 +738,7 @@ services:
       VOLCENGINE_TOS_REGION: ${PLUGIN_VOLCENGINE_TOS_REGION:-}
     ports:
       - "${EXPOSE_PLUGIN_DEBUGGING_PORT:-5003}:${PLUGIN_DEBUGGING_PORT:-5003}"
+      - "${EXPOSE_PLUGIN_DAEMON_PORT:-5002}:${PLUGIN_DAEMON_PORT:-5002}"
     volumes:
       - ./volumes/plugin_daemon:/app/storage
     depends_on:
