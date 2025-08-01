@@ -92,7 +92,7 @@ def add_galaxy_user_info(self, provider: str, token: str, auth_providers: dict):
         user_info = oauth_provider.get_user_info(token)
     except requests.exceptions.RequestException as e:
         error_text = e.response.text if e.response else str(e)
-        logging.exception(f"An error occurred during the OAuth process with {provider}: {error_text}")
+        logging.exception("An error occurred during the OAuth process with %s: %s", provider, error_text)
         return {"error": "OAuth process failed"}, 400
     # 新增用户
     return add_account(provider, user_info)
