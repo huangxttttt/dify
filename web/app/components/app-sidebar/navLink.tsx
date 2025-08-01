@@ -57,7 +57,16 @@ export default function NavLink({
         )}
         aria-hidden="true"
       />
-      {mode === 'expand' && name}
+      <span
+        className={classNames(
+          'whitespace-nowrap transition-all duration-200 ease-in-out',
+          mode === 'expand'
+            ? 'w-auto opacity-100'
+            : 'pointer-events-none w-0 overflow-hidden opacity-0',
+        )}
+      >
+        {name}
+      </span>
     </Link>
   )
 }

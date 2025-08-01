@@ -39,6 +39,15 @@ ENV VIRTUAL_ENV=/app/api/.venv
 
 EXPOSE 5001
 
+
+# set timezone
+ENV TZ=UTC
+
+# Set UTF-8 locale
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV PYTHONIOENCODING=utf-8
+
 WORKDIR /app/api
 
 # Use Aliyun mirror to avoid 502 issues during apt install
@@ -49,7 +58,12 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends --fix-missing \
         curl nodejs libgmp-dev libmpfr-dev libmpc-dev \
         expat libldap-2.5-0 perl libsqlite3-0 zlib1g \
-        media-types libmagic1 \
+        # install fonts to support the use of tools like pypdfium2
+        fonts-noto-cjk \
+        # install a package to improve the accuracy of guessing mime type and file extension
+        media-types \
+        # install libmagic to support the use of python-magic guess MIMETYPE
+        libmagic1 \
     && apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/*
 

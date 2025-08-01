@@ -104,12 +104,12 @@ const Installed: FC<Props> = ({
     }
   }
 
-  const { langeniusVersionInfo } = useAppContext()
+  const { langGeniusVersionInfo } = useAppContext()
   const isDifyVersionCompatible = useMemo(() => {
-    if (!langeniusVersionInfo.current_version)
+    if (!langGeniusVersionInfo.current_version)
       return true
-    return gte(langeniusVersionInfo.current_version, payload.meta.minimum_dify_version ?? '0.0.0')
-  }, [langeniusVersionInfo.current_version, payload.meta.minimum_dify_version])
+    return gte(langGeniusVersionInfo.current_version, payload.meta.minimum_dify_version ?? '0.0.0')
+  }, [langGeniusVersionInfo.current_version, payload.meta.minimum_dify_version])
 
   return (
     <>

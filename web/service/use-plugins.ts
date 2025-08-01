@@ -13,7 +13,6 @@ import type {
   InstalledLatestVersionResponse,
   InstalledPluginListWithTotalResponse,
   PackageDependency,
-  Permissions,
   Plugin,
   PluginDeclaration,
   PluginDetail,
@@ -22,6 +21,7 @@ import type {
   PluginType,
   PluginsFromMarketplaceByInfoResponse,
   PluginsFromMarketplaceResponse,
+  ReferenceSetting,
   VersionInfo,
   VersionListResponse,
   uploadGitHubResponse,
@@ -40,7 +40,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import { useInvalidateAllBuiltInTools } from './use-tools'
-import usePermission from '@/app/components/plugins/plugin-page/use-permission'
+import useReferenceSetting from '@/app/components/plugins/plugin-page/use-reference-setting'
 import { uninstallPlugin } from '@/service/plugins'
 import useRefreshPluginList from '@/app/components/plugins/install-plugin/hooks/use-refresh-plugin-list'
 import { cloneDeep } from 'lodash-es'
@@ -350,324 +350,43 @@ export const useDebugKey = () => {
   })
 }
 
-const usePermissionsKey = [NAME_SPACE, 'permissions']
-export const usePermissions = () => {
+const useReferenceSettingKey = [NAME_SPACE, 'referenceSettings']
+export const useReferenceSettings = () => {
   return useQuery({
-    queryKey: usePermissionsKey,
-    queryFn: () => get<Permissions>('/workspaces/current/plugin/permission/fetch'),
+    queryKey: useReferenceSettingKey,
+    queryFn: () => get<ReferenceSetting>('/workspaces/current/plugin/preferences/fetch'),
   })
 }
 
-export const useInvalidatePermissions = () => {
+export const useInvalidateReferenceSettings = () => {
   const queryClient = useQueryClient()
   return () => {
     queryClient.invalidateQueries(
       {
-        queryKey: usePermissionsKey,
+        queryKey: useReferenceSettingKey,
       })
   }
 }
 
-export const useMutationPermissions = ({
+export const useMutationReferenceSettings = ({
   onSuccess,
 }: {
   onSuccess?: () => void
 }) => {
   return useMutation({
-    mutationFn: (payload: Permissions) => {
-      return post('/workspaces/current/plugin/permission/change', { body: payload })
+    mutationFn: (payload: ReferenceSetting) => {
+      return post('/workspaces/current/plugin/preferences/change', { body: payload })
     },
     onSuccess,
   })
 }
 
-export const useMutationPluginsFromMarketplace2 = () => {
-    return useMutation({
-        mutationFn: async (pluginsSearchParams: PluginsSearchParams) => {
-            const page = pluginsSearchParams.page || 1
-            const pageSize = pluginsSearchParams.pageSize || 40
-            const excludeList = pluginsSearchParams.exclude || []
-            const mockPluginList = [
-                {
-                    agent_strategy: {},
-                    badges: [],
-                    brief: {
-                        en_US: 'Ollama',
-                    },
-                    category: 'model',
-                    created_at: '2024-12-04T09:46:32Z',
-                    endpoint: {},
-                    icon: 'langgenius/packages/ollama/_assets/icon_s_en.svg',
-                    index_id: 'langgenius___ollama',
-                    install_count: 146874,
-                    introduction: '## Overview\n\nOllama is a cross-platform inference framework client (MacOS, Windows, Linux) designed for seamless deployment of large language models (LLMs) such as Llama 2, Mistral, Llava, and more. With its one-click setup, Ollama enables local execution of LLMs, providing enhanced data privacy and security by keeping your data on your own machine.\n\nDify supports integrating LLM and Text Embedding capabilities of large language models deployed with Ollama.\n\n## Configure\n\n#### 1. Download Ollama\nVisit [Ollama download page](https://ollama.com/download) to download the Ollama client for your system.\n\n#### 2. Run Ollama and Chat with Llava\n\n````\nollama run llama3.2\n````\n\nAfter successful launch, Ollama starts an API service on local port 11434, which can be accessed at `http://localhost:11434`.\n\nFor other models, visit [Ollama Models](https://ollama.com/library) for more details.\n\n#### 3. Install Ollama Plugin\nGo to the Dify marketplace and search the Ollama to download it.\n\n![](./_assets/ollama-01.png)\n\n#### 4. Integrate Ollama in Dify\n\nIn `Settings \u003E Model Providers \u003E Ollama`, fill in:\n\n![](./_assets/ollama-02.png)\n\n- Model Name：`llama3.2`\n- Base URL: `http://\u003Cyour-ollama-endpoint-domain\u003E:11434`\n- Enter the base URL where the Ollama service is accessible.\n- If Dify is deployed using Docker, consider using the local network IP address, e.g., `http://192.168.1.100:11434` or `http://host.docker.internal:11434` to access the service.\n- For local source code deployment, use `http://localhost:11434`.\n- Model Type: `Chat`\n- Model Context Length: `4096`\n- The maximum context length of the model. If unsure, use the default value of 4096.\n- Maximum Token Limit: `4096`\n- The maximum number of tokens returned by the model. If there are no specific requirements for the model, this can be consistent with the model context length.\n- Support for Vision: `Yes`\n- Check this option if the model supports image understanding (multimodal), like `llava`.\n\nClick "Save" to use the model in the application after verifying that there are no errors.\n\nThe integration method for Embedding models is similar to LLM, just change the model type to Text Embedding.\n\nFor more detail, please check [Dify\'s official document](https://docs.dify.ai/development/models-integration/ollama).\n',
-                    label: {
-                        en_US: 'Ollama',
-                    },
-                    latest_package_identifier: 'langgenius/ollama:0.0.6@7d66a960a68cafdcdf5589fdf5d01a995533f956853c69c54eddcf797006fa37',
-                    latest_version: '0.0.6',
-                    model: {
-                        background: '#F9FAFB',
-                        configurate_methods: [
-                            'customizable-model',
-                        ],
-                        description: {
-                            en_US: 'Ollama',
-                        },
-                        help: {
-                            title: {
-                                en_US: 'How to integrate with Ollama',
-                                zh_Hans: '如何集成 Ollama',
-                            },
-                            url: {
-                                en_US: 'https://docs.dify.ai/tutorials/model-configuration/ollama',
-                            },
-                        },
-                        icon_large: {
-                            en_US: 'icon_l_en.svg',
-                        },
-                        icon_small: {
-                            en_US: 'icon_s_en.svg',
-                        },
-                        label: {
-                            en_US: 'Ollama',
-                        },
-                        model_credential_schema: {
-                            credential_form_schemas: [
-                                {
-                                    default: null,
-                                    label: {
-                                        en_US: 'Base URL',
-                                        zh_Hans: '基础 URL',
-                                    },
-                                    max_length: 0,
-                                    options: [],
-                                    placeholder: {
-                                        en_US: 'Base url of Ollama server, e.g. http://192.168.1.100:11434',
-                                        zh_Hans: 'Ollama server 的基础 URL，例如 http://192.168.1.100:11434',
-                                    },
-                                    required: true,
-                                    show_on: [],
-                                    type: 'text-input',
-                                    variable: 'base_url',
-                                },
-                                {
-                                    default: 'chat',
-                                    label: {
-                                        en_US: 'Completion mode',
-                                        zh_Hans: '模型类型',
-                                    },
-                                    max_length: 0,
-                                    options: [
-                                        {
-                                            label: {
-                                                en_US: 'Completion',
-                                                zh_Hans: '补全',
-                                            },
-                                            show_on: [],
-                                            value: 'completion',
-                                        },
-                                        {
-                                            label: {
-                                                en_US: 'Chat',
-                                                zh_Hans: '对话',
-                                            },
-                                            show_on: [],
-                                            value: 'chat',
-                                        },
-                                    ],
-                                    placeholder: {
-                                        en_US: 'Select completion mode',
-                                        zh_Hans: '选择对话类型',
-                                    },
-                                    required: true,
-                                    show_on: [
-                                        {
-                                            value: 'llm',
-                                            variable: '__model_type',
-                                        },
-                                    ],
-                                    type: 'select',
-                                    variable: 'mode',
-                                },
-                                {
-                                    default: '4096',
-                                    label: {
-                                        en_US: 'Model context size',
-                                        zh_Hans: '模型上下文长度',
-                                    },
-                                    max_length: 0,
-                                    options: [],
-                                    placeholder: {
-                                        en_US: 'Enter your Model context size',
-                                        zh_Hans: '在此输入您的模型上下文长度',
-                                    },
-                                    required: true,
-                                    show_on: [],
-                                    type: 'text-input',
-                                    variable: 'context_size',
-                                },
-                                {
-                                    default: '4096',
-                                    label: {
-                                        en_US: 'Upper bound for max tokens',
-                                        zh_Hans: '最大 token 上限',
-                                    },
-                                    max_length: 0,
-                                    options: [],
-                                    placeholder: null,
-                                    required: true,
-                                    show_on: [
-                                        {
-                                            value: 'llm',
-                                            variable: '__model_type',
-                                        },
-                                    ],
-                                    type: 'text-input',
-                                    variable: 'max_tokens',
-                                },
-                                {
-                                    default: 'false',
-                                    label: {
-                                        en_US: 'Vision support',
-                                        zh_Hans: '是否支持 Vision',
-                                    },
-                                    max_length: 0,
-                                    options: [
-                                        {
-                                            label: {
-                                                en_US: 'Yes',
-                                                zh_Hans: '是',
-                                            },
-                                            show_on: [],
-                                            value: 'true',
-                                        },
-                                        {
-                                            label: {
-                                                en_US: 'No',
-                                                zh_Hans: '否',
-                                            },
-                                            show_on: [],
-                                            value: 'false',
-                                        },
-                                    ],
-                                    placeholder: null,
-                                    required: false,
-                                    show_on: [
-                                        {
-                                            value: 'llm',
-                                            variable: '__model_type',
-                                        },
-                                    ],
-                                    type: 'radio',
-                                    variable: 'vision_support',
-                                },
-                                {
-                                    default: 'false',
-                                    label: {
-                                        en_US: 'Function call support',
-                                        zh_Hans: '是否支持函数调用',
-                                    },
-                                    max_length: 0,
-                                    options: [
-                                        {
-                                            label: {
-                                                en_US: 'Yes',
-                                                zh_Hans: '是',
-                                            },
-                                            show_on: [],
-                                            value: 'true',
-                                        },
-                                        {
-                                            label: {
-                                                en_US: 'No',
-                                                zh_Hans: '否',
-                                            },
-                                            show_on: [],
-                                            value: 'false',
-                                        },
-                                    ],
-                                    placeholder: null,
-                                    required: false,
-                                    show_on: [
-                                        {
-                                            value: 'llm',
-                                            variable: '__model_type',
-                                        },
-                                    ],
-                                    type: 'radio',
-                                    variable: 'function_call_support',
-                                },
-                            ],
-                            model: {
-                                label: {
-                                    en_US: 'Model Name',
-                                    zh_Hans: '模型名称',
-                                },
-                                placeholder: {
-                                    en_US: 'Enter your model name',
-                                    zh_Hans: '输入模型名称',
-                                },
-                            },
-                        },
-                        models: [],
-                        provider: 'ollama',
-                        provider_credential_schema: null,
-                        supported_model_types: [
-                            'llm',
-                            'text-embedding',
-                        ],
-                    },
-                    name: 'ollama',
-                    org: 'langgenius',
-                    plugin_id: 'langgenius/ollama',
-                    plugins: {
-                        agent_strategies: null,
-                        endpoints: null,
-                        models: [
-                            'provider/ollama.yaml',
-                        ],
-                        tools: null,
-                    },
-                    privacy_options: '',
-                    privacy_policy: '',
-                    repository: '',
-                    resource: {
-                        memory: 268435456,
-                        permission: {
-                            model: {
-                                enabled: true,
-                                llm: true,
-                                moderation: false,
-                                rerank: true,
-                                speech2text: false,
-                                text_embedding: true,
-                                tts: false,
-                            },
-                            tool: {
-                                enabled: true,
-                            },
-                        },
-                    },
-                    status: 'active',
-                    tags: [],
-                    tool: {},
-                    type: 'plugin',
-                    updated_at: '2025-04-29T02:40:26Z',
-                    version_updated_at: '2025-04-29T02:40:26Z',
-                },
-            ]
-            const filteredPlugins = [...mockPluginList.filter(plugin => !excludeList.includes(plugin.plugin_id))]
-            const pagedPlugins = filteredPlugins.slice((page - 1) * pageSize, page * pageSize)
-            console.log(pagedPlugins)
-            return Promise.resolve({
-                data: {
-                    plugins: pagedPlugins,
-                    total: mockPluginList.length,
-                },
-            })
-        },
-    })
+export const useRemoveAutoUpgrade = () => {
+  return useMutation({
+    mutationFn: (payload: { plugin_id: string }) => {
+      return post('/workspaces/current/plugin/preferences/autoupgrade/exclude', { body: payload })
+    },
+  })
 }
 
 export const useMutationPluginsFromMarketplace = () => {
@@ -716,6 +435,39 @@ export const useFetchPluginsInMarketPlaceByIds = (unique_identifiers: string[], 
   })
 }
 
+export const useFetchPluginListOrBundleList = (pluginsSearchParams: PluginsSearchParams) => {
+  return useQuery({
+    queryKey: [NAME_SPACE, 'fetchPluginListOrBundleList', pluginsSearchParams],
+    queryFn: () => {
+      const {
+        query,
+        sortBy,
+        sortOrder,
+        category,
+        tags,
+        exclude,
+        type,
+        page = 1,
+        pageSize = 40,
+      } = pluginsSearchParams
+      const pluginOrBundle = type === 'bundle' ? 'bundles' : 'plugins'
+      return postMarketplace<{ data: PluginsFromMarketplaceResponse }>(`/${pluginOrBundle}/search/advanced`, {
+        body: {
+          page,
+          page_size: pageSize,
+          query,
+          sort_by: sortBy,
+          sort_order: sortOrder,
+          category: category !== 'all' ? category : '',
+          tags,
+          exclude,
+          type,
+        },
+      })
+    },
+  })
+}
+
 export const useFetchPluginsInMarketPlaceByInfo = (infos: Record<string, any>[]) => {
   return useQuery({
     queryKey: [NAME_SPACE, 'fetchPluginsInMarketPlaceByInfo', infos],
@@ -737,7 +489,7 @@ const usePluginTaskListKey = [NAME_SPACE, 'pluginTaskList']
 export const usePluginTaskList = (category?: PluginType) => {
   const {
     canManagement,
-  } = usePermission()
+  } = useReferenceSetting()
   const { refreshPluginList } = useRefreshPluginList()
   const {
     data,

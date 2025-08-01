@@ -1,7 +1,10 @@
 import json
+from datetime import datetime
+from typing import Optional
 
-from sqlalchemy import func
+from sqlalchemy import DateTime, String, func
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import Mapped, mapped_column
 
 from models.base import Base
 
@@ -17,14 +20,14 @@ class DataSourceOauthBinding(Base):
         db.Index("source_info_idx", "source_info", postgresql_using="gin"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
-    tenant_id = db.Column(StringUUID, nullable=False)
-    access_token = db.Column(db.String(255), nullable=False)
-    provider = db.Column(db.String(255), nullable=False)
-    source_info = db.Column(JSONB, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, server_default=func.current_timestamp())
-    updated_at = db.Column(db.DateTime, nullable=False, server_default=func.current_timestamp())
-    disabled = db.Column(db.Boolean, nullable=True, server_default=db.text("false"))
+    id = mapped_column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    tenant_id = mapped_column(StringUUID, nullable=False)
+    access_token: Mapped[str] = mapped_column(String(255), nullable=False)
+    provider: Mapped[str] = mapped_column(String(255), nullable=False)
+    source_info = mapped_column(JSONB, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.current_timestamp())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.current_timestamp())
+    disabled: Mapped[Optional[bool]] = mapped_column(db.Boolean, nullable=True, server_default=db.text("false"))
 
 
 class DataSourceApiKeyAuthBinding(Base):
@@ -35,14 +38,14 @@ class DataSourceApiKeyAuthBinding(Base):
         db.Index("data_source_api_key_auth_binding_provider_idx", "provider"),
     )
 
-    id = db.Column(StringUUID, server_default=db.text("uuid_generate_v4()"))
-    tenant_id = db.Column(StringUUID, nullable=False)
-    category = db.Column(db.String(255), nullable=False)
-    provider = db.Column(db.String(255), nullable=False)
-    credentials = db.Column(db.Text, nullable=True)  # JSON
-    created_at = db.Column(db.DateTime, nullable=False, server_default=func.current_timestamp())
-    updated_at = db.Column(db.DateTime, nullable=False, server_default=func.current_timestamp())
-    disabled = db.Column(db.Boolean, nullable=True, server_default=db.text("false"))
+    id = mapped_column(StringUUID, server_default=db.text("uuid_generate_v4()"))
+    tenant_id = mapped_column(StringUUID, nullable=False)
+    category: Mapped[str] = mapped_column(String(255), nullable=False)
+    provider: Mapped[str] = mapped_column(String(255), nullable=False)
+    credentials = mapped_column(db.Text, nullable=True)  # JSON
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.current_timestamp())
+    updated_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, server_default=func.current_timestamp())
+    disabled: Mapped[Optional[bool]] = mapped_column(db.Boolean, nullable=True, server_default=db.text("false"))
 
     def to_dict(self):
         return {
