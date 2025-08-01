@@ -42,7 +42,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
   const pathname = usePathname()
   const media = useBreakpoints()
   const isMobile = media === MediaType.mobile
-  const { isCurrentWorkspaceEditor, isLoadingCurrentWorkspace } = useAppContext()
+  const { isCurrentWorkspaceEditor, isLoadingCurrentWorkspace, currentWorkspace } = useAppContext()
   const { appDetail, setAppDetail, setAppSiderbarExpand } = useStore(useShallow(state => ({
     appDetail: state.appDetail,
     setAppDetail: state.setAppDetail,
@@ -122,7 +122,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
   }, [appId, pathname])
 
   useEffect(() => {
-    if (!appDetailRes || isLoadingCurrentWorkspace || isLoadingAppDetail)
+    if (!appDetailRes || !currentWorkspace.id || isLoadingCurrentWorkspace || isLoadingAppDetail)
       return
     const res = appDetailRes
     // redirection
