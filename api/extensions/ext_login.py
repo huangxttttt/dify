@@ -54,7 +54,7 @@ def load_user_from_request(request_from_flask_login):
             raise Unauthorized("Invalid token.")
         except jwt.exceptions.PyJWTError:  # Catch-all for other JWT errors
             raise Unauthorized("Invalid token.")
-        # 从 payload 获取用户名
+        #从 payload 获取用户名
         user_name = payload.get("user_name")
         user_id = payload.get("user_id")
         user_email = f"{user_name}@galaxy.com"
@@ -93,6 +93,7 @@ def load_user_from_request(request_from_flask_login):
         # 如果有galaxy token则直接认证通过
         if galaxy_auth_token:
             logged_in_account = AccountService.get_user_through_email(galaxy_account.email)
+            logged_in_account = AccountService.load_logged_in_account(account_id=logged_in_account.id)
             return logged_in_account
 
         if not auth_token:
