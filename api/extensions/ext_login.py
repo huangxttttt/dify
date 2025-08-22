@@ -17,6 +17,13 @@ from libs.passport import PassportService
 from models.account import Account, Tenant, TenantAccountJoin
 from models.model import AppMCPServer, EndUser
 from services.account_service import AccountService
+from constants.languages import languages
+
+from controllers.console.auth.oauth import _get_account_by_openid_or_email
+from models import AccountStatus, TenantAccountRole
+from services.account_service import RegisterService, TenantService
+from services.errors.account import AccountNotFoundError, TenantNotFoundError
+from services.feature_service import FeatureService
 
 login_manager = flask_login.LoginManager()
 
@@ -54,20 +61,13 @@ def load_user_from_request(request_from_flask_login):
             raise Unauthorized("Invalid token.")
         except jwt.exceptions.PyJWTError:  # Catch-all for other JWT errors
             raise Unauthorized("Invalid token.")
-        #从 payload 获取用户名
+        # 从 payload 获取用户名
         user_name = payload.get("user_name")
         user_id = payload.get("user_id")
         user_email = f"{user_name}@galaxy.com"
         auth_user_info = OAuthUserInfo(id=str(user_id + 1), name=user_name, email=user_email)
-        galaxy_account = add_account(provider, auth_user_info)
-
-        # todo 暂时隐蔽使用解析token的方法，等待环境完成，则可以使用调用oauth2的接口获取用户信息
-        # OAUTH_PROVIDERS = get_oauth_providers()
-        # with current_app.app_context():
-        #     oauth_provider = OAUTH_PROVIDERS.get(provider)
-        # if not oauth_provider:
-        #     return {"error": "Invalid provider"}, 400
-        # galaxy_account = add_galaxy_user_info(provider, galaxy_auth_token, OAUTH_PROVIDERS)
+        # galaxy 用户处理
+        galaxy_account = handle_galaxy_user(provider, auth_user_info)
 
     # Check for admin API key authentication first
     if dify_config.ADMIN_API_KEY_ENABLE and auth_header:
@@ -134,6 +134,37 @@ def load_user_from_request(request_from_flask_login):
         return end_user
 
 
+def handle_galaxy_user(provider: str, user_info: OAuthUserInfo) -> Account:
+    account = _get_account_by_openid_or_email(provider, user_info)
+    if not account:
+        # 新增用户
+        if not FeatureService.get_system_features().is_allow_register:
+            raise AccountNotFoundError()
+        account_name = user_info.name or "Dify"
+        account = RegisterService.register(
+            email=user_info.email, name=account_name, password="as@123789", open_id=user_info.id, provider=provider,
+            create_workspace_required=False
+        )
+
+        # Set interface language
+        preferred_lang = request.accept_languages.best_match(languages)
+        if preferred_lang and preferred_lang in languages:
+            interface_language = preferred_lang
+        else:
+            interface_language = languages[0]
+        account.interface_language = interface_language
+        db.session.commit()
+
+        # 加入管理员的工作区
+        tenant = db.session.query(Tenant).filter_by(name="admin's Workspace").first()
+        if not tenant:
+            raise TenantNotFoundError("admin’s Tenant not found.")
+        if not TenantService.is_member(account, tenant):
+            ta = TenantAccountJoin(tenant_id=tenant.id, account_id=account.id, role=TenantAccountRole.ADMIN.value)
+            db.session.add(ta)
+    return account
+
+
 @user_logged_in.connect
 @user_loaded_from_request.connect
 def on_user_logged_in(_sender, user):
@@ -158,3 +189,4 @@ def unauthorized_handler():
 
 def init_app(app: DifyApp):
     login_manager.init_app(app)
+
