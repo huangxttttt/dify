@@ -9,19 +9,16 @@ from werkzeug.exceptions import NotFound, Unauthorized
 
 # import requests
 from configs import dify_config
-from controllers.console.auth.oauth import add_account
+from constants.languages import languages
+from controllers.console.auth.oauth import _get_account_by_openid_or_email
 from dify_app import DifyApp
 from extensions.ext_database import db
 from libs.oauth import OAuthUserInfo
 from libs.passport import PassportService
+from models import TenantAccountRole
 from models.account import Account, Tenant, TenantAccountJoin
 from models.model import AppMCPServer, EndUser
-from services.account_service import AccountService
-from constants.languages import languages
-
-from controllers.console.auth.oauth import _get_account_by_openid_or_email
-from models import AccountStatus, TenantAccountRole
-from services.account_service import RegisterService, TenantService
+from services.account_service import AccountService, RegisterService, TenantService
 from services.errors.account import AccountNotFoundError, TenantNotFoundError
 from services.feature_service import FeatureService
 
@@ -92,8 +89,7 @@ def load_user_from_request(request_from_flask_login):
     if request.blueprint in {"console", "inner_api"}:
         # 如果有galaxy token则直接认证通过
         if galaxy_auth_token:
-            logged_in_account = AccountService.get_user_through_email(galaxy_account.email)
-            logged_in_account = AccountService.load_logged_in_account(account_id=logged_in_account.id)
+            logged_in_account = AccountService.load_logged_in_account(account_id=galaxy_account.id)
             return logged_in_account
 
         if not auth_token:
