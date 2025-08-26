@@ -151,13 +151,13 @@ def handle_galaxy_user(provider: str, user_info: OAuthUserInfo) -> Account:
         account.interface_language = interface_language
         db.session.commit()
 
-        # 加入管理员的工作区
-        tenant = db.session.query(Tenant).filter_by(name="admin's Workspace").first()
-        if not tenant:
-            raise TenantNotFoundError("admin’s Tenant not found.")
-        if not TenantService.is_member(account, tenant):
-            ta = TenantAccountJoin(tenant_id=tenant.id, account_id=account.id, role=TenantAccountRole.ADMIN.value)
-            db.session.add(ta)
+    # 加入管理员的工作区
+    tenant = db.session.query(Tenant).filter_by(name="admin's Workspace").first()
+    if not tenant:
+        raise TenantNotFoundError("admin’s Tenant not found.")
+    if not TenantService.is_member(account, tenant):
+        ta = TenantAccountJoin(tenant_id=tenant.id, account_id=account.id, role=TenantAccountRole.ADMIN.value)
+        db.session.add(ta)
     return account
 
 
