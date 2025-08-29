@@ -1,12 +1,9 @@
 'use client'
 import type { FC } from 'react'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  RiEqualizer2Line,
-} from '@remixicon/react'
+import React, { useCallback, useRef, useState } from 'react'
+
 import type { PopupProps } from './config-popup'
 import ConfigPopup from './config-popup'
-import cn from '@/utils/classnames'
 import {
   PortalToFollowElem,
   PortalToFollowElemContent,
@@ -17,13 +14,13 @@ type Props = {
   readOnly: boolean
   className?: string
   hasConfigured: boolean
-  controlShowPopup?: number
+  children?: React.ReactNode
 } & PopupProps
 
 const ConfigBtn: FC<Props> = ({
   className,
   hasConfigured,
-  controlShowPopup,
+  children,
   ...popupProps
 }) => {
   const [open, doSetOpen] = useState(false)
@@ -51,14 +48,11 @@ const ConfigBtn: FC<Props> = ({
       open={open}
       onOpenChange={setOpen}
       placement='bottom-end'
-      offset={{
-        mainAxis: 12,
-        crossAxis: hasConfigured ? 8 : 49,
-      }}
+      offset={12}
     >
       <PortalToFollowElemTrigger onClick={handleTrigger}>
-        <div className={cn(className, 'rounded-md p-1')}>
-          <RiEqualizer2Line className='h-4 w-4 text-text-tertiary' />
+        <div className="select-none">
+          {children}
         </div>
       </PortalToFollowElemTrigger>
       <PortalToFollowElemContent className='z-[11]'>
