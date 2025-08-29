@@ -591,7 +591,7 @@ services:
   # API service
   api:
 #    image: langgenius/dify-api:1.7.1
-    image: bill73777/dify-api:1.7.1
+    image: bill73777/dify-api:1.8.0
     restart: always
     environment:
       # Use the shared environment variables.
@@ -623,7 +623,7 @@ services:
   # The Celery worker for processing the queue.
   worker:
 #    image: langgenius/dify-api:1.7.1
-    image: bill73777/dify-api:1.7.1
+    image: bill73777/dify-api:1.8.0
     restart: always
     environment:
       # Use the shared environment variables.
@@ -652,7 +652,7 @@ services:
   worker_beat:
 
 #    image: langgenius/dify-api:1.7.1
-    image: bill73777/dify-api:1.7.1
+    image: bill73777/dify-api:1.8.0
     #image: langgenius/dify-api:1.8.0
     restart: always
     environment:
@@ -672,7 +672,7 @@ services:
   # Frontend web application.
   web:
 #    image: langgenius/dify-web:1.7.1
-    image: bill73777/dify-web:1.7.1
+    image: bill73777/dify-web:1.8.0
     restart: always
     environment:
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
