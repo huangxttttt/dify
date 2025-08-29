@@ -4,7 +4,9 @@ FROM python:3.12-slim-bookworm AS base
 WORKDIR /app/api
 
 # Install uv
-ENV UV_VERSION=0.7.11
+
+ENV UV_VERSION=0.8.9
+
 RUN pip install --no-cache-dir uv==${UV_VERSION}
 
 # packages stage
@@ -21,7 +23,7 @@ RUN apt-get update \
 
 # Install Python dependencies
 COPY pyproject.toml uv.lock ./
-RUN uv sync --locked
+RUN uv sync --locked --no-dev
 
 # production stage
 FROM base AS production

@@ -29,6 +29,10 @@ type IToastContext = {
   close: () => void
 }
 
+export type ToastHandle = {
+  clear?: VoidFunction
+}
+
 export const ToastContext = createContext<IToastContext>({} as IToastContext)
 export const useToastContext = () => useContext(ToastContext)
 const Toast = ({
@@ -127,11 +131,21 @@ Toast.notify = ({
   className,
   customComponent,
   onClose,
-}: Pick<IToastProps, 'type' | 'size' | 'message' | 'duration' | 'className' | 'customComponent' | 'onClose'>) => {
+}: Pick<IToastProps, 'type' | 'size' | 'message' | 'duration' | 'className' | 'customComponent' | 'onClose'>): ToastHandle => {
   const defaultDuring = (type === 'success' || type === 'info') ? 3000 : 6000
+  const toastHandler: ToastHandle = {}
+
   if (typeof window === 'object') {
     const holder = document.createElement('div')
     const root = createRoot(holder)
+
+    toastHandler.clear = () => {
+      if (holder) {
+        root.unmount()
+        holder.remove()
+      }
+      onClose?.()
+    }
 
     root.render(
       <ToastContext.Provider value={{
@@ -148,14 +162,10 @@ Toast.notify = ({
       </ToastContext.Provider>,
     )
     document.body.appendChild(holder)
-    setTimeout(() => {
-      if (holder) {
-        root.unmount()
-        holder.remove()
-      }
-      onClose?.()
-    }, duration || defaultDuring)
+    setTimeout(toastHandler.clear, duration || defaultDuring)
   }
+
+  return toastHandler
 }
 
 export default Toast

@@ -191,7 +191,7 @@ const DatePicker = ({
     setView(ViewType.date)
   }
 
-  const timeFormat = needTimePicker ? 'MMMM D, YYYY hh:mm A' : 'MMMM D, YYYY'
+  const timeFormat = needTimePicker ? t('time.dateFormats.displayWithTime') : t('time.dateFormats.display')
   const displayValue = value?.format(timeFormat) || ''
   const displayTime = selectedDate?.format('hh:mm A') || '--:-- --'
   const placeholderDate = isOpen && selectedDate ? selectedDate.format(timeFormat) : (placeholder || t('time.defaultPlaceholder'))
