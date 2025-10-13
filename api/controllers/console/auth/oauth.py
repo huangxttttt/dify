@@ -64,7 +64,6 @@ def get_oauth_providers():
         return OAUTH_PROVIDERS
 
 
-
 class GalaxyOauthLogin(Resource):
     def get(self, provider: str):
         token = request.args.get("token") or None
@@ -124,7 +123,6 @@ class GalaxyOauthLogin(Resource):
         return redirect(
             f"{dify_config.CONSOLE_WEB_URL}?access_token={token_pair.access_token}&refresh_token={token_pair.refresh_token}"
         )
-
 
 
 @console_ns.route("/oauth/login/<provider>")
@@ -289,7 +287,6 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
     AccountService.link_account_integrate(provider, user_info.id, account)
 
     return account
-
 
 
 api.add_resource(OAuthLogin, "/oauth/login/<provider>")

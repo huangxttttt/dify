@@ -1067,7 +1067,10 @@ class PositionConfig(BaseSettings):
     def POSITION_TOOL_EXCLUDES_SET(self) -> set[str]:
         return {item.strip() for item in self.POSITION_TOOL_EXCLUDES.split(",") if item.strip() != ""}
 
+
 """自动加载环境变量（.env）到 Python 配置类中，并加上类型校验和默认值。"""
+
+
 class LoginConfig(BaseSettings):
     ENABLE_EMAIL_CODE_LOGIN: bool = Field(
         description="whether to enable email code login",

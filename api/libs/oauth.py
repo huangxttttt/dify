@@ -3,6 +3,7 @@ import urllib.parse
 from dataclasses import dataclass
 
 import httpx
+import requests
 
 
 @dataclass
@@ -43,6 +44,7 @@ class OAuth:
     def _transform_user_info(self, raw_info: dict) -> OAuthUserInfo:
         raise NotImplementedError()
 
+
 class GalaxyOAuth(OAuth):
     def get_authorization_url(self, invite_token: Optional[str] = None):
         params = {
@@ -67,9 +69,6 @@ class GalaxyOAuth(OAuth):
             "Accept": "application/json",
             "Authorization": f"Basic {auth_b64}",
         }
-        print(self.client_id)
-        print(self.client_secret)
-        print(self.token_url)
         response = requests.post(self.token_url, data=data, headers=headers)
 
         response_json = response.json()
@@ -83,7 +82,6 @@ class GalaxyOAuth(OAuth):
     def get_raw_user_info(self, token: str):
         headers = {"Authorization": f"Galaxy {token}"}
         response = requests.get(self.user_info_url, headers=headers)
-        print(response.json())
         return response.json()
 
     def _transform_user_info(self, raw_info: dict) -> OAuthUserInfo:
@@ -91,7 +89,8 @@ class GalaxyOAuth(OAuth):
         email = userinfo.get("email")
         if not email:
             email = f"{userinfo['userName']}@galaxy.com"
-        return OAuthUserInfo(id=str(userinfo["id"]+1), name=userinfo["realName"], email=email)
+        return OAuthUserInfo(id=str(userinfo["id"] + 1), name=userinfo["realName"], email=email)
+
 
 class GitHubOAuth(OAuth):
     _AUTH_URL = "https://github.com/login/oauth/authorize"

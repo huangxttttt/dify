@@ -20,6 +20,7 @@ def verify_a_system_token(a_token):
         # 解密或签名验证失败
         return False, None
 
+
 if __name__ == '__main__':
     token = ('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9'
              '.eyJyb2xlIjoiTVBCRF9BRE1JTixjb21tb24sSlpfQURNSU4sc3V4LGRhdGFfemwiLCJ1c2VyX25hbWUiOiJCRDAwMDYiLCJjZXJ0X2NvZGUiOiIwMDAwMDAwMDAwMCIsInJlYW'

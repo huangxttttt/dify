@@ -208,10 +208,10 @@
   },
   "lint-staged": {
     "**/*.js?(x)": [
-      "eslint --concurrency=auto --fix"
+      "eslint  --fix"
     ],
     "**/*.ts?(x)": [
-      "eslint --concurrency=auto --fix"
+      "eslint  --fix"
     ]
   },
   "pnpm": {
