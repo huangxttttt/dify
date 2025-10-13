@@ -1,6 +1,6 @@
 const translation = {
-  pageTitle: '嗨，近来可好',
-  welcome: '👋 欢迎来到 Dify, 登录以继续',
+  pageTitle: '登录 Dify',
+  welcome: '👋 欢迎！请登录以开始使用。',
   email: '邮箱',
   emailPlaceholder: '输入邮箱地址',
   password: '密码',
@@ -63,6 +63,7 @@ const translation = {
     passwordInvalid: '密码必须包含字母和数字，且长度不小于 8 位',
     passwordLengthInValid: '密码必须至少为 8 个字符',
     registrationNotAllowed: '账户不存在，请联系系统管理员注册账户',
+    invalidEmailOrPassword: '邮箱或密码错误',
   },
   license: {
     tip: '启动 Dify 社区版之前，请阅读 GitHub 上的',
@@ -110,6 +111,15 @@ const translation = {
     noLoginMethod: 'Web 应用未配置身份认证方式',
     noLoginMethodTip: '请联系系统管理员添加身份认证方式',
     disabled: 'Web 应用身份认证已禁用，请联系系统管理员启用。您也可以尝试直接使用应用。',
+  },
+  signup: {
+    noAccount: '没有账户？',
+    signUp: '立即注册',
+    createAccount: '创建您的账户',
+    welcome: '👋 欢迎！请填写信息以开始使用。',
+    verifyMail: '发送验证码',
+    haveAccount: '已有账户？',
+    signIn: '立即登录',
   },
 }
 
