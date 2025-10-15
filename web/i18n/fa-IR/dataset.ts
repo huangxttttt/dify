@@ -226,6 +226,17 @@ const translation = {
   updated: 'بروز رسانی',
   createFromPipeline: 'ایجاد از پایپ لاین دانش',
   externalKnowledgeBase: 'پایگاه دانش خارجی',
+  serviceApi: {
+    card: {
+      apiReference: 'مرجع API',
+      apiKey: 'کلید API',
+      endpoint: 'نقطه انتهایی رابط برنامه‌نویسی سرویس',
+      title: 'رابط برنامه‌نویسی سرویس پشتیبان',
+    },
+    disabled: 'غیرفعال',
+    title: 'رابط برنامه‌نویسی سرویس',
+    enabled: 'در خدمت',
+  },
 }
 
 export default translation

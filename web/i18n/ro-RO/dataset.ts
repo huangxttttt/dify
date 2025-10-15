@@ -226,6 +226,17 @@ const translation = {
   updated: 'Actualizat',
   externalKnowledgeBase: 'Baza de cunoștințe externă',
   createFromPipeline: 'Crearea din Knowledge Pipeline',
+  serviceApi: {
+    card: {
+      apiKey: 'Cheie API',
+      endpoint: 'Punct final API de servicii',
+      apiReference: 'Referință API',
+      title: 'API pentru serviciul backend',
+    },
+    enabled: 'În serviciu',
+    title: 'API de servicii',
+    disabled: 'Dezactivat',
+  },
 }
 
 export default translation

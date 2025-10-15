@@ -46,7 +46,7 @@ class OAuth:
 
 
 class GalaxyOAuth(OAuth):
-    def get_authorization_url(self, invite_token: Optional[str] = None):
+    def get_authorization_url(self, invite_token: str | None = None):
         params = {
             "response_type": 'code',
             "client_id": self.client_id,

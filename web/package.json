@@ -19,7 +19,7 @@
     "and_qq >= 14.9"
   ],
   "scripts": {
-    "dev": "cross-env NODE_OPTIONS='--inspect' next dev --turbopack",
+    "dev": "cross-env NODE_OPTIONS='' next dev --turbopack",
     "build": "next build",
     "build:docker": "next build && node scripts/optimize-standalone.js",
     "start": "cp -r .next/static .next/standalone/.next/static && cp -r public .next/standalone/public && cross-env PORT=$npm_config_port HOSTNAME=$npm_config_host node .next/standalone/server.js",
@@ -88,6 +88,7 @@
     "js-cookie": "^3.0.5",
     "jsonschema": "^1.5.0",
     "katex": "^0.16.21",
+    "keyv": "^5.5.3",
     "ky": "^1.7.2",
     "lamejs": "^1.2.1",
     "lexical": "^0.36.2",
@@ -177,7 +178,6 @@
     "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
     "babel-loader": "^10.0.0",
-    "bing-translate-api": "^4.0.2",
     "code-inspector-plugin": "1.2.9",
     "cross-env": "^7.0.3",
     "eslint": "^9.35.0",

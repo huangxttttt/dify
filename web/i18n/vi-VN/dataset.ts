@@ -226,6 +226,17 @@ const translation = {
   updated: 'Cập nhật',
   createFromPipeline: 'Tạo từ quy trình kiến thức',
   externalKnowledgeBase: 'Cơ sở kiến thức bên ngoài',
+  serviceApi: {
+    card: {
+      endpoint: 'Điểm cuối API dịch vụ',
+      apiReference: 'Tham chiếu API',
+      title: 'API dịch vụ backend',
+      apiKey: 'Khóa API',
+    },
+    disabled: 'Vô hiệu hóa',
+    title: 'API dịch vụ',
+    enabled: 'Đang phục vụ',
+  },
 }
 
 export default translation

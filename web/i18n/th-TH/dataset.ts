@@ -225,6 +225,17 @@ const translation = {
   updated: 'ปรับ ปรุง',
   externalKnowledgeBase: 'ฐานความรู้ภายนอก',
   createFromPipeline: 'สร้างจากไปป์ไลน์ความรู้',
+  serviceApi: {
+    card: {
+      title: 'บริการแบ็กเอนด์ API',
+      apiKey: 'กุญแจ API',
+      apiReference: 'เอกสารอ้างอิง API',
+      endpoint: 'จุดเชื่อมต่อ API บริการ',
+    },
+    disabled: 'ถูกปิดใช้งาน',
+    enabled: 'ให้บริการ',
+    title: 'บริการ API',
+  },
 }
 
 export default translation

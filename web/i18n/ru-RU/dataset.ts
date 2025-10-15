@@ -226,6 +226,17 @@ const translation = {
   updated: 'Обновлено',
   externalKnowledgeBase: 'Внешняя база знаний',
   createFromPipeline: 'Создание из конвейера знаний',
+  serviceApi: {
+    card: {
+      apiKey: 'API ключ',
+      apiReference: 'Справочник API',
+      endpoint: 'Конечная точка API сервиса',
+      title: 'API бэкенд-сервиса',
+    },
+    enabled: 'В эксплуатации',
+    disabled: 'Отключено',
+    title: 'Сервисный API',
+  },
 }
 
 export default translation

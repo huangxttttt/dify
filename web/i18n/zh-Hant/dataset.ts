@@ -226,6 +226,17 @@ const translation = {
   externalKnowledgeBase: '外部知識庫',
   createFromPipeline: '從知識管線建立',
   updated: '更新時間',
+  serviceApi: {
+    card: {
+      apiReference: 'API 參考',
+      apiKey: 'API 金鑰',
+      title: '後端服務 API',
+      endpoint: '服務 API 端點',
+    },
+    enabled: '使用中',
+    title: '服務 API',
+    disabled: '已停用',
+  },
 }
 
 export default translation
