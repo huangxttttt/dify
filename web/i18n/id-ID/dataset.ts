@@ -221,14 +221,14 @@ const translation = {
   externalKnowledgeBase: 'Basis Pengetahuan Eksternal',
   serviceApi: {
     card: {
-      apiReference: 'Referensi API',
       apiKey: 'Kunci API',
-      title: 'Layanan API backend',
+      apiReference: 'Referensi API',
+      title: 'API layanan backend',
       endpoint: 'Titik Akhir API Layanan',
     },
-    disabled: 'Dinonaktifkan',
     title: 'API Layanan',
     enabled: 'Sedang Beroperasi',
+    disabled: 'Dinonaktifkan',
   },
 }
 

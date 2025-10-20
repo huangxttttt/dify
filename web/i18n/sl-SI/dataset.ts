@@ -229,13 +229,13 @@ const translation = {
   serviceApi: {
     card: {
       apiKey: 'API ključ',
-      apiReference: 'API referenca',
       endpoint: 'Vhodna točka API storitve',
-      title: 'Služba za zadnji del API',
+      title: 'API storitev za zaledje',
+      apiReference: 'API Referenca',
     },
-    enabled: 'V storitvi',
-    disabled: 'Onemogočeno',
     title: 'Storitveni API',
+    disabled: 'Onemogočeno',
+    enabled: 'V storitvi',
   },
 }
 

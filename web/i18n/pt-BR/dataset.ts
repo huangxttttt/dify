@@ -229,13 +229,13 @@ const translation = {
   serviceApi: {
     card: {
       apiKey: 'Chave de API',
-      title: 'API de serviço de backend',
       apiReference: 'Referência da API',
-      endpoint: 'Ponto de Extremidade da API de Serviço',
+      title: 'API de serviço de backend',
+      endpoint: 'Endpoint da API de Serviço',
     },
     enabled: 'Em serviço',
-    disabled: 'Desativado',
     title: 'API de Serviço',
+    disabled: 'Desativado',
   },
 }
 

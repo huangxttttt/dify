@@ -234,14 +234,14 @@ const translation = {
   externalKnowledgeBase: 'Zewnętrzna baza wiedzy',
   serviceApi: {
     card: {
-      endpoint: 'Punkt końcowy API usługi',
-      title: 'Usługa backendowa API',
       apiKey: 'Klucz API',
+      title: 'Usługa backendowa API',
       apiReference: 'Dokumentacja API',
+      endpoint: 'Punkt końcowy API usługi',
     },
-    enabled: 'W serwisie',
-    disabled: 'Niepełnosprawny',
     title: 'Interfejs API usługi',
+    disabled: 'Niepełnosprawny',
+    enabled: 'W serwisie',
   },
 }
 

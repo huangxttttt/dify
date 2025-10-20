@@ -228,14 +228,14 @@ const translation = {
   externalKnowledgeBase: 'Cơ sở kiến thức bên ngoài',
   serviceApi: {
     card: {
-      endpoint: 'Điểm cuối API dịch vụ',
-      apiReference: 'Tham chiếu API',
       title: 'API dịch vụ backend',
+      endpoint: 'Điểm cuối API dịch vụ',
       apiKey: 'Khóa API',
+      apiReference: 'Tham chiếu API',
     },
-    disabled: 'Vô hiệu hóa',
-    title: 'API dịch vụ',
     enabled: 'Đang phục vụ',
+    disabled: 'Vô hiệu hóa',
+    title: 'Giao diện lập trình dịch vụ',
   },
 }
 

@@ -229,13 +229,13 @@ const translation = {
   externalKnowledgeBase: 'Зовнішня база знань',
   serviceApi: {
     card: {
-      apiKey: 'Ключ API',
+      title: 'API бекенд-сервіс',
       apiReference: 'Посилання на API',
-      title: 'API бекенд-сервісу',
+      apiKey: 'Ключ API',
       endpoint: 'Кінцева точка API сервісу',
     },
-    enabled: 'У службі',
     disabled: 'Вимкнено',
+    enabled: 'У службі',
     title: 'Сервісний API',
   },
 }

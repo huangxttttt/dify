@@ -232,9 +232,9 @@ const translation = {
       apiKey: 'API 키',
       title: '백엔드 서비스 API',
     },
-    disabled: '비활성화됨',
     enabled: '서비스 중',
     title: '서비스 API',
+    disabled: '장애인',
   },
 }
 

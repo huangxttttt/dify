@@ -228,10 +228,10 @@ const translation = {
   externalKnowledgeBase: 'Base de connaissances externe',
   serviceApi: {
     card: {
-      endpoint: 'Point de terminaison de l\'API de service',
-      title: 'API du service backend',
-      apiReference: 'Référence API',
       apiKey: 'Clé API',
+      apiReference: 'Référence API',
+      title: 'API du service backend',
+      endpoint: 'Point de terminaison de l\'API',
     },
     enabled: 'En service',
     title: 'API de service',

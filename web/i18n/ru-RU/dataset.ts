@@ -228,14 +228,14 @@ const translation = {
   createFromPipeline: 'Создание из конвейера знаний',
   serviceApi: {
     card: {
-      apiKey: 'API ключ',
       apiReference: 'Справочник API',
-      endpoint: 'Конечная точка API сервиса',
       title: 'API бэкенд-сервиса',
+      apiKey: 'API ключ',
+      endpoint: 'Конечная точка API сервиса',
     },
-    enabled: 'В эксплуатации',
-    disabled: 'Отключено',
+    enabled: 'На службе',
     title: 'Сервисный API',
+    disabled: 'Отключено',
   },
 }
 

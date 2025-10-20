@@ -228,12 +228,12 @@ const translation = {
   serviceApi: {
     card: {
       title: 'บริการแบ็กเอนด์ API',
-      apiKey: 'กุญแจ API',
       apiReference: 'เอกสารอ้างอิง API',
+      apiKey: 'กุญแจ API',
       endpoint: 'จุดเชื่อมต่อ API บริการ',
     },
-    disabled: 'ถูกปิดใช้งาน',
     enabled: 'ให้บริการ',
+    disabled: 'ถูกปิดใช้งาน',
     title: 'บริการ API',
   },
 }

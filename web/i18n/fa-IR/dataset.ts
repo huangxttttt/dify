@@ -228,14 +228,14 @@ const translation = {
   externalKnowledgeBase: 'پایگاه دانش خارجی',
   serviceApi: {
     card: {
-      apiReference: 'مرجع API',
       apiKey: 'کلید API',
-      endpoint: 'نقطه انتهایی رابط برنامه‌نویسی سرویس',
       title: 'رابط برنامه‌نویسی سرویس پشتیبان',
+      apiReference: 'مرجع API',
+      endpoint: 'نقطه انتهایی رابط برنامه‌نویسی سرویس',
     },
-    disabled: 'غیرفعال',
+    disabled: 'معلول',
+    enabled: 'در حال خدمت',
     title: 'رابط برنامه‌نویسی سرویس',
-    enabled: 'در خدمت',
   },
 }
 

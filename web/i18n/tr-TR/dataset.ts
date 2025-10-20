@@ -229,13 +229,13 @@ const translation = {
   serviceApi: {
     card: {
       apiReference: 'API Referansı',
+      title: 'Backend servis api',
       apiKey: 'API Anahtarı',
       endpoint: 'Hizmet API Uç Noktası',
-      title: 'Arka uç servis API\'si',
     },
-    enabled: 'Hizmette',
-    title: 'Servis API',
     disabled: 'Engelli',
+    enabled: 'Hizmette',
+    title: 'Servis API\'si',
   },
 }
 

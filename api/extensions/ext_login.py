@@ -16,7 +16,8 @@ from extensions.ext_database import db
 from libs.oauth import OAuthUserInfo
 from libs.passport import PassportService
 from models import TenantAccountRole
-from models.account import Account, Tenant, TenantAccountJoin
+from libs.token import extract_access_token
+from models import Account, Tenant, TenantAccountJoin
 from models.model import AppMCPServer, EndUser
 from services.account_service import AccountService, RegisterService, TenantService
 from services.errors.account import AccountNotFoundError, TenantNotFoundError
@@ -32,7 +33,6 @@ def load_user_from_request(request_from_flask_login):
     # Skip authentication for documentation endpoints
     if dify_config.SWAGGER_UI_ENABLED and request.path.endswith((dify_config.SWAGGER_UI_PATH, "/swagger.json")):
         return None
-
     auth_header = request.headers.get("Authorization", "")
     auth_token: str | None = None
     galaxy_auth_token: str | None = None
@@ -69,9 +69,10 @@ def load_user_from_request(request_from_flask_login):
         auth_user_info = OAuthUserInfo(id=str(user_id + 1), name=user_name, email=user_email)
         # galaxy 用户处理
         galaxy_account = handle_galaxy_user(provider, auth_user_info)
+    auth_token = extract_access_token(request)
 
     # Check for admin API key authentication first
-    if dify_config.ADMIN_API_KEY_ENABLE and auth_header:
+    if dify_config.ADMIN_API_KEY_ENABLE and auth_token:
         admin_api_key = dify_config.ADMIN_API_KEY
         if admin_api_key and admin_api_key == auth_token:
             workspace_id = request.headers.get("X-WORKSPACE-ID")

@@ -235,13 +235,13 @@ const translation = {
   createFromPipeline: 'Creazione da pipeline di conoscenza',
   serviceApi: {
     card: {
-      apiKey: 'Chiave API',
-      apiReference: 'Riferimento API',
       endpoint: 'Endpoint dell\'API di servizio',
-      title: 'API del servizio back-end',
+      apiKey: 'Chiave API',
+      title: 'API del servizio backend',
+      apiReference: 'Riferimento API',
     },
-    title: 'API di servizio',
     disabled: 'Disabilitato',
+    title: 'API di servizio',
     enabled: 'In servizio',
   },
 }

@@ -240,9 +240,9 @@ const translation = {
       title: 'बैकएंड सेवा एपीआई',
       endpoint: 'सेवा एपीआई एंडपॉइंट',
     },
-    title: 'सेवा एपीआई',
     enabled: 'सेवा में',
     disabled: 'अक्षम',
+    title: 'सेवा एपीआई',
   },
 }
 

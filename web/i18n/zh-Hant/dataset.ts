@@ -228,10 +228,10 @@ const translation = {
   updated: '更新時間',
   serviceApi: {
     card: {
-      apiReference: 'API 參考',
-      apiKey: 'API 金鑰',
       title: '後端服務 API',
+      apiReference: 'API 參考',
       endpoint: '服務 API 端點',
+      apiKey: 'API 金鑰',
     },
     enabled: '使用中',
     title: '服務 API',
