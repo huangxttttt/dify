@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from werkzeug.exceptions import Unauthorized
 
 from configs import dify_config
-from constants.languages import language_timezone_mapping, languages
+from constants.languages import get_valid_language, language_timezone_mapping
 from events.tenant_event import tenant_was_created
 from extensions.ext_database import db
 from extensions.ext_redis import redis_client, redis_fallback
@@ -131,31 +131,23 @@ class AccountService:
 
         if account.status == AccountStatus.BANNED:
             raise Unauthorized("Account is banned.")
-        # 先获取admin的工作区间，如果没有则获取第一条
 
-        admin_tenant = (db.session.query(Tenant)
-                        .join(TenantAccountJoin, Tenant.id == TenantAccountJoin.tenant_id)
-                        .where(Tenant.name == "admin's Workspace")
-                        .where(TenantAccountJoin.account_id == account.id).one_or_none())
-        if admin_tenant:
-            account.set_tenant_id(admin_tenant.id)
+        current_tenant = db.session.query(TenantAccountJoin).filter_by(account_id=account.id, current=True).first()
+        if current_tenant:
+            account.set_tenant_id(current_tenant.tenant_id)
         else:
-            current_tenant = db.session.query(TenantAccountJoin).filter_by(account_id=account.id, current=True).first()
-            if current_tenant:
-                account.set_tenant_id(current_tenant.tenant_id)
-            else:
-                available_ta = (
-                    db.session.query(TenantAccountJoin)
-                    .filter_by(account_id=account.id)
-                    .order_by(TenantAccountJoin.id.asc())
-                    .first()
-                )
-                if not available_ta:
-                    return None
+            available_ta = (
+                db.session.query(TenantAccountJoin)
+                .filter_by(account_id=account.id)
+                .order_by(TenantAccountJoin.id.asc())
+                .first()
+            )
+            if not available_ta:
+                return None
 
-                account.set_tenant_id(available_ta.tenant_id)
-                available_ta.current = True
-                db.session.commit()
+            account.set_tenant_id(available_ta.tenant_id)
+            available_ta.current = True
+            db.session.commit()
 
         if naive_utc_now() - account.last_active_at > timedelta(minutes=10):
             account.last_active_at = naive_utc_now()
@@ -1267,7 +1259,7 @@ class RegisterService:
         return f"member_invite:token:{token}"
 
     @classmethod
-    def setup(cls, email: str, name: str, password: str, ip_address: str):
+    def setup(cls, email: str, name: str, password: str, ip_address: str, language: str):
         """
         Setup dify
 
@@ -1277,11 +1269,10 @@ class RegisterService:
         :param ip_address: ip address
         """
         try:
-            # Register
             account = AccountService.create_account(
                 email=email,
                 name=name,
-                interface_language=languages[0],
+                interface_language=get_valid_language(language),
                 password=password,
                 is_setup=True,
             )
@@ -1323,7 +1314,7 @@ class RegisterService:
             account = AccountService.create_account(
                 email=email,
                 name=name,
-                interface_language=language or languages[0],
+                interface_language=get_valid_language(language),
                 password=password,
                 is_setup=is_setup,
             )
