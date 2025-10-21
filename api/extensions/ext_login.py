@@ -1,8 +1,10 @@
 import json
 
+
 # import logging
 import flask_login  # type: ignore
 import jwt
+
 from flask import Response, request
 from flask_login import user_loaded_from_request, user_logged_in
 from werkzeug.exceptions import NotFound, Unauthorized
