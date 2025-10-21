@@ -228,14 +228,14 @@ const translation = {
   updated: 'Actualizado',
   serviceApi: {
     card: {
+      apiReference: 'Referencia de la API',
       apiKey: 'Clave API',
       endpoint: 'Punto de enlace de la API de servicio',
-      apiReference: 'Referencia de la API',
-      title: 'API de servicio backend',
+      title: 'API del servicio de backend',
     },
     enabled: 'En servicio',
-    title: 'API de servicio',
-    disabled: 'Deshabilitado',
+    title: 'API de servicios',
+    disabled: 'Discapacitado',
   },
 }
 

@@ -35,12 +35,6 @@ const ConfigBtn: FC<Props> = ({
     setOpen(!openRef.current)
   }, [setOpen])
 
-  useEffect(() => {
-    if (controlShowPopup)
-      // setOpen(!openRef.current)
-      setOpen(true)
-  }, [controlShowPopup])
-
   if (popupProps.readOnly && !hasConfigured)
     return null
 
