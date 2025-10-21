@@ -6,13 +6,13 @@ LABEL maintainer="takatost@gmail.com"
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 
 # if you located in China, you can use taobao registry to speed up
-# RUN npm config set registry https://registry.npmmirror.com
+RUN npm config set registry https://registry.npmmirror.com
 
 RUN apk add --no-cache tzdata
 RUN corepack enable
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-ENV NEXT_PUBLIC_BASE_PATH=/dify
+ENV NEXT_PUBLIC_BASE_PATH=
 
 
 # install packages
