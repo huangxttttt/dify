@@ -2,7 +2,7 @@ import urllib.parse
 from dataclasses import dataclass
 
 import httpx
-
+import base64
 
 @dataclass
 class OAuthUserInfo:
@@ -12,10 +12,18 @@ class OAuthUserInfo:
 
 
 class OAuth:
-    def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
+    def __init__(self, client_id: str,
+                 client_secret: str,
+                 redirect_uri: str,
+                 auth_url: str,
+                 token_url: str,
+                 user_info_url: str):
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
+        self.auth_url = auth_url
+        self.token_url = token_url
+        self.user_info_url = user_info_url
 
     def get_authorization_url(self):
         raise NotImplementedError()
@@ -32,6 +40,52 @@ class OAuth:
 
     def _transform_user_info(self, raw_info: dict) -> OAuthUserInfo:
         raise NotImplementedError()
+
+class GalaxyOAuth(OAuth):
+    def get_authorization_url(self, invite_token: str | None = None):
+        params = {
+            "response_type": 'code',
+            "client_id": self.client_id,
+            "redirect_uri": self.redirect_uri,
+            "scope": "read",  # Request only basic user information
+        }
+        if invite_token:
+            params["state"] = invite_token
+        return f"{self.auth_url}?{urllib.parse.urlencode(params)}"
+
+    def get_access_token(self, code: str):
+        data = {
+            "code": code,
+            "redirect_uri": self.redirect_uri,
+            "grant_type": 'authorization_code',
+        }
+        auth_string = f"{self.client_id}:{self.client_secret}".encode()
+        auth_b64 = base64.b64encode(auth_string).decode("utf-8")
+        headers = {
+            "Accept": "application/json",
+            "Authorization": f"Basic {auth_b64}",
+        }
+        response = httpx.post(self.token_url, data=data, headers=headers)
+
+        response_json = response.json()
+        access_token = response_json.get("access_token")
+
+        if not access_token:
+            raise ValueError(f"Error in Galaxy OAuth: {response_json}")
+
+        return access_token
+
+    def get_raw_user_info(self, token: str):
+        headers = {"Authorization": f"Galaxy {token}"}
+        response = httpx.get(self.user_info_url, headers=headers)
+        return response.json()
+
+    def _transform_user_info(self, raw_info: dict) -> OAuthUserInfo:
+        userinfo = raw_info.get("data").get("data")
+        email = userinfo.get("email")
+        if not email:
+            email = f"{userinfo['userName']}@galaxy.com"
+        return OAuthUserInfo(id=str(userinfo["id"] + 1), name=userinfo["realName"], email=email)
 
 
 class GitHubOAuth(OAuth):

@@ -131,7 +131,26 @@ class AccountService:
 
         if account.status == AccountStatus.BANNED:
             raise Unauthorized("Account is banned.")
-
+        # 先获取admin的工作区间，如果没有则获取第一条
+        admin_tenant = (db.session.query(Tenant)
+                        .join(TenantAccountJoin, Tenant.id == TenantAccountJoin.tenant_id)
+                        .where(Tenant.name == "admin's Workspace")
+                        .where(TenantAccountJoin.account_id == account.id).one_or_none())
+        if admin_tenant:
+            account.set_tenant_id(admin_tenant.id)
+        else:
+            current_tenant = db.session.query(TenantAccountJoin).filter_by(account_id=account.id, current=True).first()
+            if current_tenant:
+                account.set_tenant_id(current_tenant.tenant_id)
+            else:
+                available_ta = (
+                    db.session.query(TenantAccountJoin)
+                    .filter_by(account_id=account.id)
+                    .order_by(TenantAccountJoin.id.asc())
+                    .first()
+                )
+                if not available_ta:
+                    return None
         current_tenant = db.session.query(TenantAccountJoin).filter_by(account_id=account.id, current=True).first()
         if current_tenant:
             account.set_tenant_id(current_tenant.tenant_id)
@@ -145,6 +164,9 @@ class AccountService:
             if not available_ta:
                 return None
 
+                account.set_tenant_id(available_ta.tenant_id)
+                available_ta.current = True
+                db.session.commit()
             account.set_tenant_id(available_ta.tenant_id)
             available_ta.current = True
             db.session.commit()

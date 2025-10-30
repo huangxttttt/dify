@@ -13,7 +13,7 @@ from events.tenant_event import tenant_was_created
 from extensions.ext_database import db
 from libs.datetime_utils import naive_utc_now
 from libs.helper import extract_remote_ip
-from libs.oauth import GitHubOAuth, GoogleOAuth, OAuthUserInfo
+from libs.oauth import GalaxyOAuth, GitHubOAuth, GoogleOAuth, OAuthUserInfo
 from libs.token import (
     set_access_token_to_cookie,
     set_csrf_token_to_cookie,
@@ -49,8 +49,21 @@ def get_oauth_providers():
                 client_secret=dify_config.GOOGLE_CLIENT_SECRET,
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/google",
             )
+        galaxy_oauth = GalaxyOAuth(
+            client_id=dify_config.GALAXY_CLIENT_ID,
+            client_secret=dify_config.GALAXY_CLIENT_SECRET,
+            redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/galaxy",
+            auth_url=dify_config.GALAXY_AUTH_URL,
+            token_url=dify_config.GALAXY_TOKEN_URL,
+            user_info_url=dify_config.GALAXY_USER_INFO_URL
 
-        OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth}
+        )
+
+        OAUTH_PROVIDERS = {
+            "github": github_oauth,
+            "google": google_oauth,
+            "galaxy": galaxy_oauth,
+        }
         return OAUTH_PROVIDERS
 
 
@@ -219,3 +232,64 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
     AccountService.link_account_integrate(provider, user_info.id, account)
 
     return account
+
+
+@console_ns.route("/oauth/auth/login/<provider>")
+class GalaxyOauthLogin(Resource):
+    def get(self, provider: str):
+        token = request.args.get("token") or None
+        if not token:
+            return {"error": "Invalid provider"}, 400
+        OAUTH_PROVIDERS = get_oauth_providers()
+        with current_app.app_context():
+            oauth_provider = OAUTH_PROVIDERS.get(provider)
+        if not oauth_provider:
+            return {"error": "Invalid provider"}, 400
+        try:
+            user_info = oauth_provider.get_user_info(token)
+        except httpx.RequestError as e:
+            error_text = str(e)
+            if isinstance(e, httpx.HTTPStatusError):
+                error_text = e.response.text
+            logger.exception("An error occurred during the OAuth process with %s: %s", provider, error_text)
+            return {"error": "OAuth process failed"}, 400
+
+        try:
+            account = _generate_account(provider, user_info)
+        except AccountNotFoundError:
+            return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Account not found.")
+        except (WorkSpaceNotFoundError, WorkSpaceNotAllowedCreateError):
+            return redirect(
+                f"{dify_config.CONSOLE_WEB_URL}/signin"
+                "?message=Workspace not found, please contact system admin to invite you to join in a workspace."
+            )
+        except AccountRegisterError as e:
+            return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message={e.description}")
+
+            # Check account status
+        if account.status == AccountStatus.BANNED.value:
+            return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Account is banned.")
+
+        if account.status == AccountStatus.PENDING.value:
+            account.status = AccountStatus.ACTIVE.value
+            account.initialized_at = naive_utc_now()
+            db.session.commit()
+
+        try:
+            TenantService.create_owner_tenant_if_not_exist(account)
+        except Unauthorized:
+            return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Workspace not found.")
+        except WorkSpaceNotAllowedCreateError:
+            return redirect(
+                f"{dify_config.CONSOLE_WEB_URL}/signin"
+                "?message=Workspace not found, please contact system admin to invite you to join in a workspace."
+            )
+
+        token_pair = AccountService.login(
+            account=account,
+            ip_address=extract_remote_ip(request),
+        )
+
+        return redirect(
+            f"{dify_config.CONSOLE_WEB_URL}?access_token={token_pair.access_token}&refresh_token={token_pair.refresh_token}"
+        )
