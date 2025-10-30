@@ -1,8 +1,9 @@
+import base64
 import urllib.parse
 from dataclasses import dataclass
 
 import httpx
-import base64
+
 
 @dataclass
 class OAuthUserInfo:
@@ -40,6 +41,7 @@ class OAuth:
 
     def _transform_user_info(self, raw_info: dict) -> OAuthUserInfo:
         raise NotImplementedError()
+
 
 class GalaxyOAuth(OAuth):
     def get_authorization_url(self, invite_token: str | None = None):
