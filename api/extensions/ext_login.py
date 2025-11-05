@@ -109,14 +109,30 @@ def load_user_from_request(request_from_flask_login):
         logged_in_account = AccountService.load_logged_in_account(account_id=user_id)
         return logged_in_account
     elif request.blueprint == "web":
-        decoded = PassportService().verify(auth_token)
-        end_user_id = decoded.get("end_user_id")
-        if not end_user_id:
-            raise Unauthorized("Invalid Authorization token.")
-        end_user = db.session.query(EndUser).where(EndUser.id == decoded["end_user_id"]).first()
-        if not end_user:
-            raise NotFound("End user not found.")
-        return end_user
+        app_code = request.headers.get(HEADER_NAME_APP_CODE)
+        webapp_token = extract_webapp_passport(app_code, request) if app_code else None
+
+        if webapp_token:
+            decoded = PassportService().verify(webapp_token)
+            end_user_id = decoded.get("end_user_id")
+            if not end_user_id:
+                raise Unauthorized("Invalid Authorization token.")
+            end_user = db.session.query(EndUser).where(EndUser.id == end_user_id).first()
+            if not end_user:
+                raise NotFound("End user not found.")
+            return end_user
+        else:
+            if not auth_token:
+                raise Unauthorized("Invalid Authorization token.")
+            decoded = PassportService().verify(auth_token)
+            end_user_id = decoded.get("end_user_id")
+            if end_user_id:
+                end_user = db.session.query(EndUser).where(EndUser.id == end_user_id).first()
+                if not end_user:
+                    raise NotFound("End user not found.")
+                return end_user
+            else:
+                raise Unauthorized("Invalid Authorization token for web API.")
     elif request.blueprint == "mcp":
         server_code = request.view_args.get("server_code") if request.view_args else None
         if not server_code:
@@ -187,4 +203,3 @@ def unauthorized_handler():
 
 def init_app(app: DifyApp):
     login_manager.init_app(app)
-
