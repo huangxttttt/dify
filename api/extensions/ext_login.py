@@ -9,13 +9,14 @@ from werkzeug.exceptions import NotFound, Unauthorized
 
 # import requests
 from configs import dify_config
+from constants import HEADER_NAME_APP_CODE
 from constants.languages import languages
 from controllers.console.auth.oauth import _get_account_by_openid_or_email
 from dify_app import DifyApp
 from extensions.ext_database import db
 from libs.oauth import OAuthUserInfo
 from libs.passport import PassportService
-from libs.token import extract_access_token
+from libs.token import extract_access_token, extract_webapp_passport
 from models import Account, Tenant, TenantAccountJoin, TenantAccountRole
 from models.model import AppMCPServer, EndUser
 from services.account_service import AccountService, RegisterService, TenantService
