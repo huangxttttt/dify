@@ -724,6 +724,31 @@ class AuthConfig(BaseSettings):
         default=None,
     )
 
+    GALAXY_CLIENT_ID: str | None = Field(
+        description="GALAXY OAuth client ID",
+        default='test_client',
+    )
+
+    GALAXY_CLIENT_SECRET: str | None = Field(
+        description="GALAXY OAuth client secret",
+        default='test_secret',
+    )
+
+    GALAXY_AUTH_URL: str | None = Field(
+        description="GALAXY OAuth AUTH_URL",
+        default='http://192.168.174.128:8606/oauth/authorize',
+    )
+
+    GALAXY_TOKEN_URL: str | None = Field(
+        description="GALAXY OAuth TOKEN_URL",
+        default='http://192.168.174.128:8606/oauth/token',
+    )
+
+    GALAXY_USER_INFO_URL: str | None = Field(
+        description="GALAXY OAuth USER_INFO_URL",
+        default='http://192.168.174.128:8630/user/info',
+    )
+
     ACCESS_TOKEN_EXPIRE_MINUTES: PositiveInt = Field(
         description="Expiration time for access tokens in minutes",
         default=60,

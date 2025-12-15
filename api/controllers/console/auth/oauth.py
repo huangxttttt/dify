@@ -49,6 +49,7 @@ def get_oauth_providers():
                 client_secret=dify_config.GOOGLE_CLIENT_SECRET,
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/google",
             )
+
         galaxy_oauth = GalaxyOAuth(
             client_id=dify_config.GALAXY_CLIENT_ID,
             client_secret=dify_config.GALAXY_CLIENT_SECRET,
