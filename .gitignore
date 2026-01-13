@@ -153,6 +153,8 @@ docker-legacy/volumes/app/storage/*
 docker-legacy/volumes/db/data/*
 docker-legacy/volumes/redis/data/*
 docker-legacy/volumes/weaviate/*
+docker-legacy/volumes/weaviate-node-2/*
+docker-legacy/volumes/weaviate-node-3/*
 docker-legacy/volumes/qdrant/*
 docker-legacy/volumes/etcd/*
 docker-legacy/volumes/minio/*
