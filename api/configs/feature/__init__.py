@@ -736,17 +736,17 @@ class AuthConfig(BaseSettings):
 
     GALAXY_AUTH_URL: str | None = Field(
         description="GALAXY OAuth AUTH_URL",
-        default='http://192.168.174.128:8606/oauth/authorize',
+        default='http://172.23.27.133:8606/oauth/authorize',
     )
 
     GALAXY_TOKEN_URL: str | None = Field(
         description="GALAXY OAuth TOKEN_URL",
-        default='http://192.168.174.128:8606/oauth/token',
+        default='http://172.23.27.133:8606/oauth/token',
     )
 
     GALAXY_USER_INFO_URL: str | None = Field(
         description="GALAXY OAuth USER_INFO_URL",
-        default='http://192.168.174.128:8630/user/info',
+        default='http://172.23.27.133:8630/user/info',
     )
 
     ACCESS_TOKEN_EXPIRE_MINUTES: PositiveInt = Field(

@@ -291,6 +291,9 @@ class GalaxyOauthLogin(Resource):
             ip_address=extract_remote_ip(request),
         )
 
-        return redirect(
-            f"{dify_config.CONSOLE_WEB_URL}?access_token={token_pair.access_token}&refresh_token={token_pair.refresh_token}"
-        )
+        response = redirect(f"{dify_config.CONSOLE_WEB_URL}")
+
+        set_access_token_to_cookie(request, response, token_pair.access_token)
+        set_refresh_token_to_cookie(request, response, token_pair.refresh_token)
+        set_csrf_token_to_cookie(request, response, token_pair.csrf_token)
+        return response
